@@ -10,14 +10,14 @@ import { createAppContainer } from 'react-navigation';
 
 import firebase from 'firebase';
 import { firebaseConfig } from './config';
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); // if already initialized, use that one
+}
  
 export default function App() {
   return (
-    // <View style={styles.container}>
-    //   <Text>For myPantry!</Text>
-    //   <StatusBar style="auto" />
-    // </View>
     <AppNavigator />
   );
 }
