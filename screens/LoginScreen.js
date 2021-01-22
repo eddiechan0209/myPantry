@@ -4,10 +4,12 @@ import {
     Text,
     StyleSheet,
     ActivityIndicator,
-    Button
+    Button,
+    Image,
 } from "react-native";
 import * as Google from 'expo-google-app-auth';
 import firebase from "firebase"
+import logo from './images/MyPantryLogo.png';
 
 class LoginScreen extends Component {
 
@@ -105,8 +107,19 @@ class LoginScreen extends Component {
     }
 
     render() {
+        
         return (
+            
             <View style={styles.container}>
+                <View>
+                    <Image
+                    style={{
+                        resizeMode: "cover",
+                    }}
+                    source={logo}
+                    />
+                </View>
+
                 <Button
                 title="Sign in with Google"
                 onPress={() => this.signInWithGoogleAsync()}
