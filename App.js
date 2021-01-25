@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {createSwitchNavigator} from 'react-navigation';
+import {createSwitchNavigator, createAppContainer} from 'react-navigation';
 
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import LoadingScreen from './screens/LoadingScreen';
-import { createAppContainer } from 'react-navigation';
+import CreateAccountScreen from './screens/CreateAccountScreen';
 
 import firebase from 'firebase';
 import { firebaseConfig } from './config';
@@ -25,7 +25,8 @@ export default function App() {
 const AppSwitchNavigator = createSwitchNavigator({
   LoadingScreen: LoadingScreen,
   LoginScreen: LoginScreen,
-  DashboardScreen: DashboardScreen
+  DashboardScreen: DashboardScreen,
+  CreateAccountScreen: CreateAccountScreen
 });
 
 const AppNavigator = createAppContainer(AppSwitchNavigator)

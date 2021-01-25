@@ -3,13 +3,13 @@ import {
     View,
     Text,
     StyleSheet,
-    ActivityIndicator,
-    Button,
     Image,
 } from "react-native";
 import * as Google from 'expo-google-app-auth';
 import firebase from "firebase"
 import logo from './images/MyPantryLogo.png';
+import moveToBottom from '..//utils/moveToBottom';
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 class LoginScreen extends Component {
 
@@ -113,21 +113,22 @@ class LoginScreen extends Component {
             <View style={styles.container}>
                 <View>
                     <Image
-                    style={{
-                        resizeMode: "cover",
-                    }}
+                    style={styles.logo}
                     source={logo}
                     />
                 </View>
-
-                <Button
-                title="Sign in with Google"
-                onPress={() => this.signInWithGoogleAsync()}
-                />
-                {/* <Button
-                title="Sign in with Google"
-                onPress={() => alert("uh oh")}
-                /> */}
+                <View style={styles.sign}>
+                    <TouchableOpacity 
+                        style={styles.createAccountButton}
+                        onPress={() => this.props.navigation.navigate('CreateAccountScreen')}>
+                            <Text style={styles.buttonText}>CREATE ACCOUNT</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.createSignInButton}
+                        onPress={() => this.signInWithGoogleAsync()}>
+                            <Text style={styles.buttonText}>SIGN IN</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }
@@ -138,6 +139,38 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+    },
+    logo:{
+        
+    },
+    sign: {
+        justifyContent: 'flex-end',
+        marginBottom: 100,
+        position: 'absolute',
+        bottom:0
+    },
+    createAccountButton: {
+        elevation: 8,
+        // backgroundColor: "green",
+        borderRadius: 40,               // how curvy the button is
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginBottom: 5               //space between buttons
+    },
+    createSignInButton: {
+        elevation: 8,
+        // backgroundColor: "#FFFFFF",
+        borderRadius: 40,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginTop: 5            
+    },
+    buttonText: {
+        fontSize: 20,
+        color: "black",
+        justifyContent: 'center',
+        textAlign: 'center'
+
     }
 });
