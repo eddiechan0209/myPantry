@@ -5,13 +5,16 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "devstart": "nodemon server.js"
   },
   "dependencies": {
     "expo": "~40.0.0",
     "expo-google-app-auth": "^8.1.4",
     "expo-status-bar": "~1.0.3",
+    "express": "^4.17.1",
     "firebase": "^8.2.3",
+    "mongoose": "^5.11.13",
     "react": "16.13.1",
     "react-bootstrap-validation": "^0.1.11",
     "react-dom": "16.13.1",
@@ -22,7 +25,22 @@
     "react-navigation": "^4.4.3"
   },
   "devDependencies": {
-    "@babel/core": "~7.9.0"
+    "@babel/core": "~7.9.0",
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7"
   },
-  "private": true
+  "private": true,
+  "name": "app",
+  "description": "",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eddiechan0209/myPantry.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eddiechan0209/myPantry/issues"
+  },
+  "homepage": "https://github.com/eddiechan0209/myPantry#readme"
 }

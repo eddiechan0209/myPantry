@@ -3,27 +3,27 @@ import {
     View,
     Text,
     StyleSheet,
-    Image
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 class CreateAccountScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>I am a...</Text>
+                <Text style={styles.text}>I am a...</Text>
 
-                {/* <View style={styles.sign}>
+                <View>
                     <TouchableOpacity 
                         style={styles.createAccountButton}
                         onPress={() => this.props.navigation.navigate('CreateAccountScreen')}>
-                            <Text style={styles.buttonText}>CREATE ACCOUNT</Text>
+                            <Text style={styles.buttonText}>PANTRY</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={styles.createSignInButton}
-                        onPress={() => this.signInWithGoogleAsync()}>
-                            <Text style={styles.buttonText}>SIGN IN</Text>
+                        style={styles.createAccountButton}
+                        onPress={() => this.props.navigation.navigate('CreateAccountScreen')}>
+                            <Text style={styles.buttonText}>CONSUMER</Text>
                     </TouchableOpacity>
-                </View> */}
+                </View>
             </View>
         );
     }
@@ -36,27 +36,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    text: {
+        justifyContent: 'flex-start',
+        marginTop: 100,
+        position: 'absolute',
+        top:0,
+    },
     sign: {
         justifyContent: 'flex-end',
         marginBottom: 100,
         position: 'absolute',
         bottom:0
-    },
-    createAccountButton: {
-        elevation: 8,
-        // backgroundColor: "green",
-        borderRadius: 40,               // how curvy the button is
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        marginBottom: 5               //space between buttons
-    },
-    createSignInButton: {
-        elevation: 8,
-        // backgroundColor: "#FFFFFF",
-        borderRadius: 40,
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        marginTop: 5            
     },
     buttonText: {
         fontSize: 20,
