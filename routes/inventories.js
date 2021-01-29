@@ -14,7 +14,7 @@ router.get("/", async (req,res) =>{
 
 // Get one
 router.get("/:id", getInventory, (req,res) => {
-    res.send(res.inventory.name)
+    res.json(res.inventory)
 })
 
 // Create one
@@ -33,11 +33,28 @@ router.post("/", async (req, res) => {
 
 })
 // Update One
-router.patch("/", (req, res) => {
-
+router.patch("/:id", getInventory, async (req, res) => {
+    if(req.body.name != null) {
+        res.inventory.name = req.body.name
+    }
+    if(req.body.amount != null) {
+        res.inventory.amount = req.body.amount
+    }
+    try{
+        const updatedInventory = await res.inventory.save()
+        res.json(updatedInventory)
+    } catch (err){
+        res.status(400).json({message: err.message})
+    }
 })
 // Delete One
-router.delete("/:id", (req, res) => {
+router.delete("/:id", getInventory, async (req, res) => {
+    try{
+        await res.inventory.remove()
+        res.json({message: "Deleted inventory"})
+    } catch(err){
+        res.status(500).json({message: err.nessage})
+    }
 })
 
 async function getInventory(req, res, next){
