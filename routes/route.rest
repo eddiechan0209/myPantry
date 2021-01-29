@@ -2,7 +2,7 @@ GET http://localhost:3000/inventories
 
 ###
 
-GET http://localhost:3000/inventories/15/60132ef1d9b50771a73d3a51
+GET http://localhost:3000/inventories/60132ef1d9b50771a73d3a51
 
 ###
 
@@ -10,6 +10,6 @@ POST http://localhost:3000/inventories
 Content-Type: application/json
 
 {
-    "name": "Sexy Broccoli",
+    "name": "Broccoli",
     "amount": 10
 }

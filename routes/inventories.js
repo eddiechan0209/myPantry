@@ -16,6 +16,7 @@ router.get("/", async (req,res) =>{
 router.get("/:id", getInventory, (req,res) => {
     res.send(res.inventory.name)
 })
+
 // Create one
 router.post("/", async (req, res) => {
     const inventory = new Inventory({
