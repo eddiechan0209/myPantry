@@ -1,18 +1,23 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { 
     View,
     Text,
     StyleSheet,
     Image,
+    Alert,
+    Modal,
+    TouchableHighlight, 
 } from "react-native";
 import * as Google from 'expo-google-app-auth';
-import firebase from "firebase"
+import firebase from "firebase";
 import logo from './images/MyPantryLogo.png';
-import moveToBottom from '..//utils/moveToBottom';
+import { AntDesign } from '@expo/vector-icons'; 
+
 import { TouchableOpacity } from "react-native-gesture-handler";
-
 class LoginScreen extends Component {
+    
 
+    
     onSignIn = googleUser =>{
         console.log('Google Auth Response', googleUser);
         // We need to register an Observer on Firebase Auth to make sure auth is initialized.
@@ -34,7 +39,7 @@ class LoginScreen extends Component {
                     .database()
                     .ref("/users/" + result.user.uid)
                     .set({
-                        gmail: result.user.email,
+                        email: result.user.email,
                         profile_picture: result.additionalUserInfo.profile.picture,
                         locale: result.additionalUserInfo.profile.locale,
                         first_name: result.additionalUserInfo.profile.given_name,
@@ -106,21 +111,59 @@ class LoginScreen extends Component {
         }
     }
 
+    toggleModalVisibility = () => {
+        this.setState(prevState => ({
+            modalVisible: !prevState.modalVisible
+          }));
+    }
+
+    state = {modalVisible: false}
+
     render() {
-        
         return (
-            
             <View style={styles.container}>
+                {/* Modal */}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={this.state.modalVisible}
+                    onRequestClose={() => {
+                    Alert.alert('Modal has been closed.');
+                    }}>
+                    <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                    <View style={styles.back}>
+                        <AntDesign name="left" size={24} color="black" position="absolute"
+                        onPress={() => this.toggleModalVisibility()}/>
+                    </View>
+                        <Text style={styles.modalText}>I am a...!</Text>
+                        <TouchableOpacity 
+                            style={styles.createSignInButton}
+                            onPress={() => this.props.navigation.navigate('CreateAccountScreen', {userType: 'pantry'})}>
+                                <Text style={styles.modalText}>PANTRY</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={styles.createSignInButton}
+                            onPress={() => this.props.navigation.navigate('CreateAccountScreen', {userType: 'consumer'})}>
+                                <Text style={styles.modalText}>CONSUMER</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </View>
+                </Modal>
+                
+                {/* Logo */}
                 <View>
                     <Image
                     style={styles.logo}
                     source={logo}
                     />
                 </View>
+                
+                {/* Two buttons: Create Account and Sign In */}
                 <View style={styles.sign}>
                     <TouchableOpacity 
                         style={styles.createAccountButton}
-                        onPress={() => this.props.navigation.navigate('CreateAccountScreen')}>
+                        onPress={() => this.toggleModalVisibility()}>
                             <Text style={styles.buttonText}>CREATE ACCOUNT</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
@@ -172,5 +215,48 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         textAlign: 'center'
 
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
+      openButton: {
+        backgroundColor: '#F194FF',
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+      },
+      textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+      },
+      back:{
+        ...StyleSheet.absoluteFillObject,
+        alignSelf: 'flex-end',
+        marginTop: 10,
+        marginLeft: 5,
+        // position: 'absolute',
     }
 });
