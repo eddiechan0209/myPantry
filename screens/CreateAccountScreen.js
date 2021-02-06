@@ -15,126 +15,170 @@ import firebase from "firebase";
 
 class CreateAccountScreen extends Component {   
 
-    // onSignIn = () =>{
-    //     var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser){
-    //       unsubscribe();
-    //       // Check if we are already signed-in Firebase with the correct user.
-    //       if (signed in with email in firebase) {
-    //         // Build Firebase credential with the Google ID token.
-    //         var credential = firebase.auth.GoogleAuthProvider.credential(
-    //             googleUser.idToken,
-    //             googleUser.accessToken
-    //             );
-      
-    //         // Sign in with credential from the Google user.
-    //         firebase.auth().signInWithCredential(credential).then(function(result){
-    //             console.log("user signed in");
-    //             if(result.additionalUserInfo.isNewUser){           
-    //                 firebase
-    //                 .database()
-    //                 .ref("/users/" + result.user.uid)
-    //                 .set({
-    //                     email: result.user.email,
-    //                     profile_picture: result.additionalUserInfo.profile.picture,
-    //                     locale: result.additionalUserInfo.profile.locale,
-    //                     first_name: result.additionalUserInfo.profile.given_name,
-    //                     last_name: result.additionalUserInfo.profile.family_name,
-    //                     created_at: Date.now()
+    writeUserData = () => {
+        console.log("above authent " + this.state.firstname);
+        firebase.auth().createUserWithEmailAndPassword(this.state.emailaddress, this.state.password)
+        .then(()=>{
+            console.log('Signup successful.');
+            // var actionCodeSettings = {
+            //     url: 'mypantry-924e1.firebaseapp.com',
+            //     iOS: {
+            //       bundleId: 'com.example.ios'
+            //     },
+            //     android: {
+            //       packageName: 'com.example.android',
+            //       installApp: true,
+            //       minimumVersion: '12'
+            //     },
+            //     handleCodeInApp: true,
+            //     // When multiple custom dynamic link domains are defined, specify which
+            //     // one to use.
+            //     dynamicLinkDomain: "example.page.link"
+            // };
 
-    //                 })
-    //                 .then(function(snapshot){
+            // link = firebase.auth().sendSignInLinkToEmail(this.state.emailaddress, actionCodeSettings);
+            var credential = firebase.auth.EmailAuthProvider.credential(
+                this.state.emailaddress,
+                this.state.password
+                
+            );
+            firebase.auth().signInWithCredential(credential).then((result) => {
+                console.log("user signed in");
+                if(this.state.userType == "pantry"){
+                    firebase.database().ref("/"+ this.state.userType + "/" + result.user.uid).set({
+                        email: this.state.emailaddress,
+                        first_name: this.state.firstname,
+                        last_name: this.state.lastname,
+                        pantryName: this.state.pantryName,
+                        address: this.state.address,
+                        phone: this.state.phone,
+                        created_at: Date.now()
 
-    //                 });
-    //             }
-    //             else{
-    //                 firebase
-    //                 .database()
-    //                 .ref("/users/" + result.user.uid).update({
-    //                     last_logged_in: Date.now()
-    //                 })
-    //             }
+                    })
+                }
+                else{
+                    firebase.database().ref("/"+ this.state.userType + "/"  + result.user.uid).set({
+                        email: this.state.emailaddress,
+                        first_name: this.state.firstname,
+                        last_name: this.state.lastname,
+    
+                    })
+                }
 
-    //         })
-    //         .catch((error) => {
-    //           // Handle Errors here.
-    //           var errorCode = error.code;
-    //           var errorMessage = error.message;
-    //           // The email of the user's account used.
-    //           var email = error.email;
-    //           // The firebase.auth.AuthCredential type that was used.
-    //           var credential = error.credential;
-    //           // ...
-    //         });
-    //       } else {
-    //         console.log('User already signed-in Firebase.');
-    //       }
-    //     }.bind(this)
-    //     );
-    // }
+                // else{
+                //     firebase
+                //     .database()
+                //     .ref("/emailUsers/" + result.user.uid).update({
+                //         last_logged_in: Date.now()
+                //     })
+                // }
+
+            })
+        })
+        .catch((error)=> {
+            console.log("in error section")
+            console.log(error.code);
+            console.log(error.message);
+        })
+
+        // if (!this.isUserEqual(googleUser, firebaseUser)) {
+        //     firebase.database().ref("emailUsers/" + this.state.emailaddress).set({
+        //         first_name: this.state.firstname,
+        //         last_name: this.state.lastname,
+        //         email: this.state.emailaddress,
+        //         password : this.state.password,
+        //         created_at: Date.now()
+        //     })
+        // }
+    }
 
     renderUserInfoPrompt = () => {
         // userType will be passed during navigation (consumer is just default)
         const userType =  this.props.navigation.getParam('userType', 'consumer')
-        if(userType == "consumer"){
-            console.log("consumer line")
+        return(
+            <View>
+                <TextInput
+                value={this.state.firstname}
+                onChangeText={(firstname) => this.setState({ firstname })}
+                placeholder={'Enter first name'}
+                style={styles.input}
+                />
+                <TextInput
+                value={this.state.lastname}
+                onChangeText={(lastname) => this.setState({ lastname })}
+                placeholder={'Enter last name'}
+                style={styles.input}
+                />
+                <TextInput
+                value={this.state.emailaddress}
+                onChangeText={(emailaddress) => this.setState({ emailaddress })}
+                placeholder={'Enter email address'}
+                style={styles.input}
+                />
+                <TextInput
+                value={this.state.password}
+                onChangeText={(password) => this.setState({ password })}
+                placeholder={'Create password'}
+                secureTextEntry={true}
+                style={styles.input}
+                />
+            </View>
+        )
+    }
+
+    renderPantryInfoPrompt = () =>{
+        if(this.state.userType == "pantry"){
             return(
-                <View style={styles.container}>
+                <View>
                     <TextInput
-                    value={this.state.firstname}
-                    onChangeText={(firstname) => this.setState({ firstname })}
-                    placeholder={'Enter first name'}
+                    value={this.state.pantryName}
+                    onChangeText={(pantryName) => this.setState({ pantryName })}
+                    placeholder={'Enter pantry name'}
                     style={styles.input}
                     />
                     <TextInput
-                    value={this.state.lastname}
-                    onChangeText={(lastname) => this.setState({ lastname })}
-                    placeholder={'Enter last name'}
+                    value={this.state.address}
+                    onChangeText={(address) => this.setState({ address })}
+                    placeholder={'Enter pantry address'}
                     style={styles.input}
                     />
                     <TextInput
-                    value={this.state.emailaddress}
-                    onChangeText={(emailaddress) => this.setState({ emailaddress })}
-                    placeholder={'Enter email address'}
-                    style={styles.input}
-                    />
-                    <TextInput
-                    value={this.state.password}
-                    onChangeText={(password) => this.setState({ password })}
-                    placeholder={'Create password'}
+                    value={this.state.phone}
+                    onChangeText={(phone) => this.setState({ phone })}
+                    placeholder={'Enter pantry phone number'}
                     secureTextEntry={true}
                     style={styles.input}
-                    />
-                    
-                    <Button
-                    title={'Enter'}
-                    style={styles.input}
-                    onPress={this.onLogin.bind(this)}
                     />
                 </View>
             )
         }
-        else{
-            console.log("pantry line")
-        }
     }
 
     onLogin = () => {
-        const {firstname, lastname, emailaddress, password } = this.state;
-    
+        const {userType, firstname, lastname, emailaddress, password,} = this.state;
+        this.writeUserData();
         Alert.alert('Credentials', `${firstname} + ${lastname} + ${emailaddress} + ${password}`);
       }
     
-    state = {firstname: "", lastname: "", emailaddress: "", password: ""};
+    state = {userType: this.props.navigation.getParam('userType', 'consumer'), firstname: "", lastname: "", emailaddress: "", password: "",
+             pantryName: "", address: "", phone: ""};
 
     render() {
+        console.log("render:" + JSON.stringify(this.state));  
         return (
             <View style={styles.container}>
                 <View style={styles.back}>
                     <AntDesign name="left" size={24} color="black" position="absolute"
                     onPress={() => this.props.navigation.navigate('LoginScreen')}/>
                 </View>
-
                 {this.renderUserInfoPrompt() }
+                {this.renderPantryInfoPrompt()}
+                <Button
+                title={'Enter'}
+                style={styles.input}
+                onPress={this.onLogin.bind(this)}
+                />
+
             </View>
         );
     }

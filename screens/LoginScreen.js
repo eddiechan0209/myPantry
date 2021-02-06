@@ -19,7 +19,7 @@ class LoginScreen extends Component {
 
     
     onSignIn = googleUser =>{
-        console.log('Google Auth Response', googleUser);
+        // console.log('Google Auth Response', googleUser);
         // We need to register an Observer on Firebase Auth to make sure auth is initialized.
         var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser){
           unsubscribe();
@@ -34,12 +34,13 @@ class LoginScreen extends Component {
             // Sign in with credential from the Google user.
             firebase.auth().signInWithCredential(credential).then(function(result){
                 console.log("user signed in");
-                if(result.additionalUserInfo.isNewUser){           
+                if(result.additionalUserInfo.isNewUser){    
+                    console.log('New user.');    
                     firebase
                     .database()
-                    .ref("/users/" + result.user.uid)
+                    .ref("/googleUsers/" + result.user.uid)
                     .set({
-                        email: result.user.email,
+                        gmail: result.user.email,
                         profile_picture: result.additionalUserInfo.profile.picture,
                         locale: result.additionalUserInfo.profile.locale,
                         first_name: result.additionalUserInfo.profile.given_name,
@@ -52,9 +53,10 @@ class LoginScreen extends Component {
                     });
                 }
                 else{
+                    console.log('Returning User.');    
                     firebase
                     .database()
-                    .ref("/users/" + result.user.uid).update({
+                    .ref("/googleUsers/" + result.user.uid).update({
                         last_logged_in: Date.now()
                     })
                 }
