@@ -8,11 +8,11 @@ import {
 import firebase from "firebase";
 import * as Permissions from 'expo-permissions'
 import * as Location from 'expo-location'
-import MapView from 'react-native-maps'
+import MapView, { Marker, Callout, CalloutSubview } from 'react-native-maps'
 
 class DashboardScreen extends Component {
     
-    // MAP CODE TAKEN FROM https://snack.expo.io/@professorxii/expo-map-and-location-example
+    // Need to access locations of pantries from firebase
     
     state = {
         mapRegion: null,
@@ -47,17 +47,25 @@ class DashboardScreen extends Component {
     }
 
     handleClickPantries = () => {
+        // Test to see if a marker can be created on button press
+        <MapView.Marker
+            coordinate={{latitude: 37.785834,
+                longitude: -122.406417,}}
+            title={"marker.title"}
+            description={"desss"}
+        />
         console.log(this.state.locationResult)
     }
 
     render() {
         return (
+            
             <View style={styles.container}>
                 <Text>DashboardScreen</Text>
                 <Text style={styles.paragraph}>
                 Pan, zoom, and tap on the map!
                 </Text>
-        
+
                 {
                 this.state.locationResult === null ?
                 <Text>Finding your current location...</Text> :
@@ -68,10 +76,13 @@ class DashboardScreen extends Component {
                     <MapView
                     style={{ alignSelf: 'stretch', height: 400 }}
                     region={this.state.mapRegion}
-                    onRegionChange={this.handleMapRegionChange}
-                    />
+                    onRegionChange={this.handleMapRegionChange}                 
+                    >   
+                        <Marker coordinate={{ latitude: 37.78583399999998, longitude:-122.40641700000003 }} />
+                    </MapView>
+                    
                 }
-        
+                
                 <Text>
                 Location: {this.state.locationResult}
                 </Text>
