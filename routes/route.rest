@@ -10,8 +10,9 @@ POST http://localhost:3000/inventories
 Content-Type: application/json
 
 {
-    "name": "Jake Cauliflower",
-    "amount": 10
+    "name": "something",
+    "amount": 2,
+    "extra": "extra"
 }
 
 ###
