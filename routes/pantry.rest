@@ -1,0 +1,34 @@
+GET http://localhost:3000/pantries
+
+###
+
+GET http://localhost:3000/pantries/6031b3f2954a16d72b39238d
+
+###
+
+POST http://localhost:3000/pantries
+Content-Type: application/json
+
+{
+    "name": "Food",
+	"address": "709 Laurel St",
+	"inventory": [
+		]
+}
+
+###
+
+DELETE http://localhost:3000/inventories/60132ef1d9b50771a73d3a51
+
+###
+
+PATCH http://localhost:3000/inventories/60132ef1d9b50771a73d3a52
+Content-Type: application/json
+
+{
+    "name": "Aspargus"
+}
+
+###
+
+GET http://192.168.1.70:3000/pantries

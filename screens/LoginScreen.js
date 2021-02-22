@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
-import logo from './images/MyPantryLogo.png';
+import logo from '../images/MyPantryLogo.png';
 import { AntDesign } from '@expo/vector-icons';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -112,18 +112,10 @@ class LoginScreen extends Component {
 				this.props.navigation.navigate('DashboardScreen');
 			})
 			.catch((error) => {
-				// console.log(error.code);
-				this.state.error = this.errorMessage(error.code);
+				this.state.error = error.message;
 				console.log(this.state.error);
+				this.forceUpdate();
 			});
-	};
-
-	errorMessage = (err) => {
-		if (err == 'auth/invalid-email') {
-			return 'Invalid email';
-		} else if (err == 'auth/wrong-password') {
-			return 'Incorrect password';
-		}
 	};
 
 	renderSignIn = () => {
@@ -146,7 +138,10 @@ class LoginScreen extends Component {
 				<Button
 					title={'Enter'}
 					style={styles.input}
-					onPress={() => this.emailSignIn()}
+					onPress={() => {
+						this.emailSignIn();
+						this.forceUpdate();
+					}}
 				/>
 			</View>
 		);
@@ -229,7 +224,7 @@ class LoginScreen extends Component {
 			<View style={styles.container}>
 				{/* Modal for Create Account*/}
 				<Modal
-					animationType="slide"
+					animationType='slide'
 					transparent={true}
 					visible={this.state.modal1Visible}
 					onRequestClose={() => {
@@ -240,10 +235,10 @@ class LoginScreen extends Component {
 						<View style={styles.modalView}>
 							<View style={styles.back}>
 								<AntDesign
-									name="left"
+									name='left'
 									size={24}
-									color="black"
-									position="absolute"
+									color='black'
+									position='absolute'
 									onPress={() => this.toggleModalVisibility(1)}
 								/>
 							</View>
@@ -274,7 +269,7 @@ class LoginScreen extends Component {
 
 				{/* Modal for Sign in */}
 				<Modal
-					animationType="slide"
+					animationType='slide'
 					transparent={true}
 					visible={this.state.modal2Visible}
 					onRequestClose={() => {
@@ -285,10 +280,10 @@ class LoginScreen extends Component {
 						<View style={styles.modalView}>
 							<View style={styles.back}>
 								<AntDesign
-									name="left"
+									name='left'
 									size={24}
-									color="black"
-									position="absolute"
+									color='black'
+									position='absolute'
 									onPress={() => this.toggleModalVisibility(2)}
 								/>
 							</View>
@@ -312,7 +307,7 @@ class LoginScreen extends Component {
 
 				{/* Modal for email prompt */}
 				<Modal
-					animationType="slide"
+					animationType='slide'
 					transparent={true}
 					visible={this.state.modal3Visible}
 					onRequestClose={() => {
@@ -323,10 +318,10 @@ class LoginScreen extends Component {
 						<View style={styles.modalView}>
 							<View style={styles.back}>
 								<AntDesign
-									name="left"
+									name='left'
 									size={24}
-									color="black"
-									position="absolute"
+									color='black'
+									position='absolute'
 									onPress={() => {
 										this.toggleModalVisibility(3);
 										this.state.error = '';
@@ -357,10 +352,7 @@ class LoginScreen extends Component {
 								<Button
 									title={'Enter'}
 									style={styles.input}
-									onPress={() => {
-										this.emailSignIn();
-										this.forceUpdate();
-									}}
+									onPress={() => this.emailSignIn()}
 								/>
 							</View>
 

@@ -7,6 +7,7 @@ import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import CreateAccountScreen from './screens/CreateAccountScreen';
+import PantryScreen from './screens/PantryScreen';
 
 import firebase from 'firebase';
 import { firebaseConfig } from './config';
@@ -25,6 +26,7 @@ const AppSwitchNavigator = createSwitchNavigator({
 	LoginScreen: LoginScreen,
 	DashboardScreen: DashboardScreen,
 	CreateAccountScreen: CreateAccountScreen,
+	PantryScreen: PantryScreen,
 });
 
 const AppNavigator = createAppContainer(AppSwitchNavigator);

@@ -19,7 +19,7 @@ class DashboardScreen extends Component {
 	};
 
 	handleMapRegionChange = (mapRegion) => {
-		console.log(mapRegion);
+		// console.log(mapRegion);
 		this.setState({ mapRegion });
 	};
 
@@ -48,7 +48,11 @@ class DashboardScreen extends Component {
 	}
 
 	handleClickPantries = () => {
-		console.log(this.state.locationResult);
+		// console.log(this.state.locationResult);
+	};
+
+	state = {
+		dbID: this.props.navigation.getParam('dbID', ''),
 	};
 
 	render() {
@@ -67,16 +71,28 @@ class DashboardScreen extends Component {
 					<MapView
 						style={{ alignSelf: 'stretch', height: 400 }}
 						region={this.state.mapRegion}
+						// missing paranthesis and parameter... Is this right?
 						onRegionChange={this.handleMapRegionChange}
 					/>
 				)}
 
 				<Text>Location: {this.state.locationResult}</Text>
 				<Button
-					title="Find Closest Pantries"
+					title='Find Closest Pantries'
 					onPress={() => this.handleClickPantries()}
 				/>
-				<Button title="Sign out" onPress={() => firebase.auth().signOut()} />
+				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
+				<Button
+					title='Fuck with inventory on PantryScreen'
+					onPress={() => {
+						console.log('dashboard pressed');
+						console.log(this.props.navigation.getParam('dbID', 'notPantry'));
+						console.log('dashboard pressed after');
+						this.props.navigation.navigate('PantryScreen', {
+							dbID: this.props.navigation.getParam('dbID', 'notPantry'),
+						});
+					}}
+				/>
 			</View>
 		);
 	}

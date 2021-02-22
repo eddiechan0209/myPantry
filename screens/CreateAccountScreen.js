@@ -3,8 +3,42 @@ import { View, Text, StyleSheet, TextInput, Button, Alert } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
+import { watchPositionAsync } from 'expo-location';
+
+const SERVER_URL = 'http://192.168.1.70:3000/pantries';
+const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {
+	createDB = async () => {
+		const pantry = {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				name: this.state.pantryName,
+				address: this.state.address,
+				inventory: [],
+			}),
+		};
+
+		fetch(SERVER_URL, pantry)
+			.then(
+				(response) => response.json(),
+				console.log('successfully created new pantry DB')
+			)
+			.then((responseJson) => {
+				this.state.dbID = responseJson._id;
+				console.log(responseJson._id);
+				console.log('after 33' + this.state.dbID);
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('error in trying to create DB');
+			});
+	};
+
 	writeUserData = () => {
 		console.log('above authent ' + this.state.firstname);
 		firebase
@@ -15,6 +49,8 @@ class CreateAccountScreen extends Component {
 			)
 			.then(() => {
 				console.log('Signup successful.');
+				this.createDB();
+
 				// var actionCodeSettings = {
 				//     url: 'mypantry-924e1.firebaseapp.com',
 				//     iOS: {
@@ -40,6 +76,7 @@ class CreateAccountScreen extends Component {
 					.auth()
 					.signInWithCredential(credential)
 					.then((result) => {
+						this.state.uid = result.user.uid;
 						console.log('user signed in');
 						if (this.state.userType == 'pantry') {
 							firebase
@@ -52,6 +89,7 @@ class CreateAccountScreen extends Component {
 									pantryName: this.state.pantryName,
 									address: this.state.address,
 									phone: this.state.phone,
+									dbID: this.state.dbID,
 									created_at: Date.now(),
 								});
 						} else {
@@ -73,22 +111,20 @@ class CreateAccountScreen extends Component {
 						//     })
 						// }
 					});
+				// this.props.navigation.navigate('DashboardScreen');
+				console.log(this.state.dbID);
+				console.log('dude');
+				this.props.navigation.navigate('DashboardScreen', {
+					dbID: this.state.dbID,
+				});
 			})
 			.catch((error) => {
 				console.log('in error section');
 				console.log(error.code);
 				console.log(error.message);
+				this.state.error = error.message;
+				this.forceUpdate();
 			});
-
-		// if (!this.isUserEqual(googleUser, firebaseUser)) {
-		//     firebase.database().ref("emailUsers/" + this.state.emailaddress).set({
-		//         first_name: this.state.firstname,
-		//         last_name: this.state.lastname,
-		//         email: this.state.emailaddress,
-		//         password : this.state.password,
-		//         created_at: Date.now()
-		//     })
-		// }
 	};
 
 	renderUserInfoPrompt = () => {
@@ -152,19 +188,6 @@ class CreateAccountScreen extends Component {
 		}
 	};
 
-	onLogin = () => {
-		const {
-			userType,
-			firstname,
-			lastname,
-			emailaddress,
-			password,
-		} = this.state;
-		console.log('on login');
-		this.writeUserData();
-		// Alert.alert('Credentials', `${firstname} + ${lastname} + ${emailaddress} + ${password}`);
-	};
-
 	state = {
 		userType: this.props.navigation.getParam('userType', 'consumer'),
 		firstname: '',
@@ -174,6 +197,8 @@ class CreateAccountScreen extends Component {
 		pantryName: '',
 		address: '',
 		phone: '',
+		error: '',
+		dbID: '',
 	};
 
 	render() {
@@ -182,22 +207,22 @@ class CreateAccountScreen extends Component {
 			<View style={styles.container}>
 				<View style={styles.back}>
 					<AntDesign
-						name="left"
+						name='left'
 						size={24}
-						color="black"
-						position="absolute"
+						color='black'
+						position='absolute'
 						onPress={() => this.props.navigation.navigate('LoginScreen')}
 					/>
 				</View>
 				{this.renderUserInfoPrompt()}
 				{this.renderPantryInfoPrompt()}
+				<View>
+					<Text>{this.state.error}</Text>
+				</View>
 				<Button
 					title={'Enter'}
 					style={styles.input}
-					onPress={() => {
-						this.onLogin();
-						this.props.navigation.navigate('DashboardScreen');
-					}}
+					onPress={() => this.writeUserData()}
 				/>
 			</View>
 		);
