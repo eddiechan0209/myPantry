@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
 const SERVER_URL = 'http://192.168.1.70:3000/pantries';
 const Pantry = require('../models/pantry');
 
@@ -62,13 +62,14 @@ class PantryScreen extends Component {
 		return fetch(SERVER_URL + '/' + this.state.dbID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
+					console.log('Working');
 					return response.json();
 				} else {
 					console.log('error in GET. statuscode: ' + response.status);
 				}
 			})
 			.then((responseJson) => {
-				// console.log('reponse :' + JSON.stringify(responseJson));
+				console.log('reponse :' + JSON.stringify(responseJson));
 				console.log(responseJson);
 			})
 			.catch((error) => {
@@ -107,18 +108,22 @@ class PantryScreen extends Component {
 	};
 
 	render() {
-		// console.log('bitch' + this.props.navigation.getParam('dbID', 'notPantry'));
-		// console.log(this.state.dbID);
-		// console.log('in pantryscreen');
-		// console.log(JSON.stringify(pantryExample));
+		//console.log('bitch' + this.props.navigation.getParam('dbID', 'notPantry'));
+		//console.log(this.state.dbID);
+		//console.log('in pantryscreen');
+		//console.log(JSON.stringify(pantryExample));
 		return (
 			<View style={styles.container}>
 				<Text>PantryScreen</Text>
+				
 				<Button title='postEntry' onPress={() => this.postEntry()} />
 				<Button title='getEntry' onPress={() => this.getEntry()} />
 				<Button title='updateEntry' onPress={() => this.updateEntry()} />
+				<Button title='Add Inventory' onPress={() => this.props.navigation.navigate('InputPantryInfoScreen')} />
+				
 				{/* <Text>{this.state.numCarrots}</Text> */}
 			</View>
+			
 		);
 	}
 }
