@@ -50,6 +50,7 @@ class CreateAccountScreen extends Component {
 			.then(() => {
 				console.log('Signup successful.');
 				this.createDB();
+				//await is waiting for an asychronous function to complete
 
 				// var actionCodeSettings = {
 				//     url: 'mypantry-924e1.firebaseapp.com',

@@ -28,7 +28,7 @@ const patchEntry = {
 		name: 'Add celery',
 		address: 'New Addy',
 		inventory: [
-			{ itemID: 1, name: 'celery', quantity: 100 },
+			{ itemID: 1, name: 'celery', quantity: -2 },
 			{ itemID: 2, name: 'carrot', quantity: 3 },
 			{ itemID: 3, name: 'corn', quantity: 2 },
 			{ itemID: 4, name: 'fruit', quantity: 4 },
@@ -38,7 +38,7 @@ const patchEntry = {
 
 class PantryScreen extends Component {
 	postEntry = async () => {
-		return fetch(SERVER_URL, postEntry)
+		let a = fetch(SERVER_URL, postEntry)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
 					return response.json();
@@ -47,14 +47,16 @@ class PantryScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				// this.state.dbID = responseJson._id;
-				// console.log('postEntry() successful.');
-				// console.log('id: ' + this.state.dbID);
+				this.state.dbID = responseJson._id;
+				console.log('postEntry() successful.');
+				console.log('id: ' + this.state.dbID);
 			})
 			.catch((error) => {
 				console.error(error);
 				console.error('^ is the error, in POST');
 			});
+		console.log(a);
+		return a;
 	};
 
 	getEntry = async () => {
