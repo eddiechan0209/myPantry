@@ -8,38 +8,58 @@ import MapView from 'react-native-maps';
 const SERVER_URL = 'http://192.168.1.70:3000/pantries';
 
 const pantryEntry = {
-    method: 'POST',
-    headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        name: 'Great Pantry', // Need to update to use current name 
-        address: 'Some address', // Need to update to use current address 
-        inventory: [],
-    }),
+	method: 'PATCH',
+	headers: {
+		Accept: 'application/json',
+		'Content-Type': 'application/json',
+	},
+	body: JSON.stringify({
+		inventory: [],
+	}),
 };
 // Need to set inventory to empty array or push will not work
 pantryEntry.inventory = [];
 
 class InputPantryInfoScreen extends Component {
+	addValuesToPantry = async () => {
+		console.log(
+			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
+		);
+		// Adding the values that were inputted to the existing inventory list
+		// pantryEntry.inventory.push({
+		// 	itemID: 6,
+		// 	name: this.state.itemName,
+		// 	quantity: parseInt(this.state.itemQuantity),
+		// });
 
-    addValuesToPantry = async () => {
-        // Adding the values that were inputted to the existing inventory list
-        pantryEntry.inventory.push( {itemID: 1, name: this.state.itemName, quantity: this.state.itemQuantity}); 
-        console.log(pantryEntry);
-        console.log('id: ' + this.state.dbID);
+		const pantryEntry = {
+			method: 'PATCH',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				inventory: [
+					{
+						itemID: this.state.itemID,
+						name: this.state.itemName,
+						quantity: parseInt(this.state.itemQuantity),
+					},
+				],
+			}),
+		};
+
+		console.log(pantryEntry);
+		console.log('id: ' + this.state.dbID);
 		console.log('in updateentry');
-        // Running update and then updating the values 
+		// Running update and then updating the values
 
-            // Possible error to check for could be if Pantry is trying to add to existing item 
-            // like if the pantry is trying to add more apples and not replace total with the given
-            // number
+		// Possible error to check for could be if Pantry is trying to add to existing item
+		// like if the pantry is trying to add more apples and not replace total with the given
+		// number
 
 		return fetch(SERVER_URL + '/' + this.state.dbID, pantryEntry)
 			.then((response) => {
-				console.log('in first then');
-				console.log(response.status);
 				if (response.status >= 200 && response.status <= 299) {
 					return response.json();
 				} else {
@@ -57,29 +77,35 @@ class InputPantryInfoScreen extends Component {
 			});
 	};
 
-    state = {
-        dbID: '6033670df94993f43908e153',   
-        itemName: '',
-        itemQuantity: '',
-    };
+	state = {
+		dbID: '6033670df94993f43908e153',
+		itemID: '',
+		itemName: '',
+		itemQuantity: '',
+	};
 	render() {
 		return (
 			<View style={styles.container}>
 				<TextInput
-                    value={this.state.itemName}
-                    onChangeText={(itemName) => this.setState({ itemName })}
-                    placeholder={'Item Name'}
-                    style={styles.input}
-                />
-                <TextInput
-                    value={this.state.itemQuantity}
-                    onChangeText={(itemQuantity) => this.setState({ itemQuantity })}
-                    placeholder={'Item Quantity'}
-                    style={styles.input}
-                />
+					value={this.state.itemID}
+					onChangeText={(itemID) => this.setState({ itemID })}
+					placeholder={'Item ID'}
+					style={styles.input}
+				/>
+				<TextInput
+					value={this.state.itemName}
+					onChangeText={(itemName) => this.setState({ itemName })}
+					placeholder={'Item Name'}
+					style={styles.input}
+				/>
+				<TextInput
+					value={this.state.itemQuantity}
+					onChangeText={(itemQuantity) => this.setState({ itemQuantity })}
+					placeholder={'Item Quantity'}
+					style={styles.input}
+				/>
 
-                <Button title='Add Values' onPress={() => this.addValuesToPantry()}/> 
-                    
+				<Button title='Add Values' onPress={() => this.addValuesToPantry()} />
 
 				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 				<Button
@@ -105,12 +131,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-    input: {
-    width: 200,
-    height: 44,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: 'black',
-    marginBottom: 10,
-  },
+	input: {
+		width: 200,
+		height: 44,
+		padding: 10,
+		borderWidth: 1,
+		borderColor: 'black',
+		marginBottom: 10,
+	},
 });

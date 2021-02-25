@@ -83,7 +83,7 @@ class DashboardScreen extends Component {
 				/>
 				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 				<Button
-					title='Fuck with inventory on PantryScreen'
+					title='Pantry Inventory Playground'
 					onPress={() => {
 						console.log('dashboard pressed');
 						console.log(this.props.navigation.getParam('dbID', 'notPantry'));

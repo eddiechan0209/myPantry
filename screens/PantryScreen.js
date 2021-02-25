@@ -24,9 +24,8 @@ const patchEntry = {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',
 	},
+
 	body: JSON.stringify({
-		name: 'Add celery',
-		address: 'New Addy',
 		inventory: [
 			{ itemID: 1, name: 'celery', quantity: -2 },
 			{ itemID: 2, name: 'carrot', quantity: 3 },
@@ -117,15 +116,19 @@ class PantryScreen extends Component {
 		return (
 			<View style={styles.container}>
 				<Text>PantryScreen</Text>
-				
+
 				<Button title='postEntry' onPress={() => this.postEntry()} />
 				<Button title='getEntry' onPress={() => this.getEntry()} />
 				<Button title='updateEntry' onPress={() => this.updateEntry()} />
-				<Button title='Add Inventory' onPress={() => this.props.navigation.navigate('InputPantryInfoScreen')} />
-				
+				<Button
+					title='Add Inventory'
+					onPress={() =>
+						this.props.navigation.navigate('InputPantryInfoScreen')
+					}
+				/>
+
 				{/* <Text>{this.state.numCarrots}</Text> */}
 			</View>
-			
 		);
 	}
 }
