@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
-const SERVER_URL = 'http://192.168.1.70:3000/pantries';
+const SERVER_URL = 'http://10.0.0.85:3000/pantries';
 const Pantry = require('../models/pantry');
 
 // empty db
@@ -124,6 +124,13 @@ class PantryScreen extends Component {
 					title='Add Inventory'
 					onPress={() =>
 						this.props.navigation.navigate('InputPantryInfoScreen')
+					}
+				/>
+
+				<Button
+					title='View Inventory'
+					onPress={() =>
+						this.props.navigation.navigate('PantryInventoryScreen')
 					}
 				/>
 
