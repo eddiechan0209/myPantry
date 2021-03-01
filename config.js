@@ -2,7 +2,7 @@
 export const firebaseConfig = {
 	apiKey: 'AIzaSyAX4LTzz6ilImjA4BNkwK0nbK_7jPQgHjo',
 	authDomain: 'mypantry-924e1.firebaseapp.com',
-	databaseURL: 'mypantry-924e1-default-rtdb.firebaseio.com',
+	databaseURL: 'https://mypantry-924e1-default-rtdb.firebaseio.com/',
 	projectId: 'mypantry-924e1',
 	storageBucket: 'mypantry-924e1.appspot.com',
 	messagingSenderId: '741826228014',

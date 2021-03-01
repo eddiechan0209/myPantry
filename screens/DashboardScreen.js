@@ -48,7 +48,8 @@ class DashboardScreen extends Component {
 	}
 
 	handleClickPantries = () => {
-		// console.log(this.state.locationResult);
+		// console.log(JSON.stringify(this.state.locationResult));
+		this.props.navigation.navigate('PantryListScreen');
 	};
 
 	state = {
@@ -58,8 +59,8 @@ class DashboardScreen extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Text>DashboardScreen</Text>
-				<Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text>
+				{/* <Text>DashboardScreen</Text> */}
+				{/* <Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text> */}
 
 				{this.state.locationResult === null ? (
 					<Text>Finding your current location...</Text>
@@ -76,23 +77,22 @@ class DashboardScreen extends Component {
 					/>
 				)}
 
-				<Text>Location: {this.state.locationResult}</Text>
+				{/* <Text>Location: {this.state.locationResult}</Text> */}
 				<Button
 					title='Find Closest Pantries'
 					onPress={() => this.handleClickPantries()}
 				/>
-				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
+
 				<Button
 					title='Pantry Inventory Playground'
 					onPress={() => {
 						console.log('dashboard pressed');
 						console.log(this.props.navigation.getParam('dbID', 'notPantry'));
 						console.log('dashboard pressed after');
-						this.props.navigation.navigate('PantryScreen', {
-							dbID: this.props.navigation.getParam('dbID', 'notPantry'),
-						});
+						this.props.navigation.navigate('PantryScreen');
 					}}
 				/>
+				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 			</View>
 		);
 	}

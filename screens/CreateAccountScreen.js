@@ -50,25 +50,6 @@ class CreateAccountScreen extends Component {
 			.then(() => {
 				console.log('Signup successful.');
 				this.createDB();
-				//await is waiting for an asychronous function to complete
-
-				// var actionCodeSettings = {
-				//     url: 'mypantry-924e1.firebaseapp.com',
-				//     iOS: {
-				//       bundleId: 'com.example.ios'
-				//     },
-				//     android: {
-				//       packageName: 'com.example.android',
-				//       installApp: true,
-				//       minimumVersion: '12'
-				//     },
-				//     handleCodeInApp: true,
-				//     // When multiple custom dynamic link domains are defined, specify which
-				//     // one to use.
-				//     dynamicLinkDomain: "example.page.link"
-				// };
-
-				// link = firebase.auth().sendSignInLinkToEmail(this.state.emailaddress, actionCodeSettings);
 				var credential = firebase.auth.EmailAuthProvider.credential(
 					this.state.emailaddress,
 					this.state.password
@@ -103,21 +84,20 @@ class CreateAccountScreen extends Component {
 									last_name: this.state.lastname,
 								});
 						}
-
-						// else{
-						//     firebase
-						//     .database()
-						//     .ref("/emailUsers/" + result.user.uid).update({
-						//         last_logged_in: Date.now()
-						//     })
-						// }
+						console.log('following is for testing-------');
+						firebase
+							.database()
+							.ref('/pantry')
+							.on('value', (snapshot) => {
+								console.log('hello :(');
+								const pantries = snapshot.val();
+								console.log('pantries: ' + pantries);
+							});
+						console.log('---------');
 					});
-				// this.props.navigation.navigate('DashboardScreen');
 				console.log(this.state.dbID);
 				console.log('dude');
-				this.props.navigation.navigate('DashboardScreen', {
-					dbID: this.state.dbID,
-				});
+				this.props.navigation.navigate('DashboardScreen');
 			})
 			.catch((error) => {
 				console.log('in error section');
