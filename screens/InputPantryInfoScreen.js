@@ -5,7 +5,7 @@ import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
 
-const SERVER_URL = 'http://10.0.0.85:3000/pantries';
+const SERVER_URL = 'http:/192.168.1.70:3000/pantries';
 
 const pantryEntry = {
 	method: 'PATCH',

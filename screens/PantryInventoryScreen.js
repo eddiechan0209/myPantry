@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
-const SERVER_URL = 'http://10.0.0.85:3000/pantries';
+const SERVER_URL = 'http://192.168.1.70:3000/pantries';
 const Pantry = require('../models/pantry');
 
 class PantryInventoryScreen extends Component {
-    
-    state = {
+	state = {
 		// dbID: this.props.navigation.getParam('dbID', 'notpantry'),
-		dbID: '6039c6fde06d9e294f15dc36', // Hardcoding to this pantry for now
-        inventoryInfo: {},
-        inventoryString: '',
+		dbID: '603d9af0aa03bb51e77bfb90', // Hardcoding to this pantry for now
+		inventoryInfo: {},
+		inventoryString: '',
 	};
 
-    getEntry = async () => {
+	getEntry = async () => {
 		console.log('id: ' + this.state.dbID);
 		return fetch(SERVER_URL + '/' + this.state.dbID)
 			.then((response) => {
@@ -26,16 +25,21 @@ class PantryInventoryScreen extends Component {
 			.then((responseJson) => {
 				//console.log('reponse :' + JSON.stringify(responseJson));
 
-                this.state.inventoryInfo = responseJson;
-                this.state.inventorySting = '';
-                this.state.inventoryInfo.inventory.forEach(item => {
-                    let currentItemName = JSON.stringify(item.name);
-                    let currentItemQuantitiy = JSON.stringify(item.quantity);
-                    this.state.inventoryString += currentItemName + ": " + currentItemQuantitiy + ' \n ';
-                });
-                
-                console.log('Inventory info: ' + JSON.stringify(this.state.inventoryInfo.inventory));
-                this.forceUpdate();
+				this.state.inventoryInfo = responseJson;
+				console.log(JSON.stringify(this.state.inventoryInfo));
+				this.state.inventorySting = '';
+				this.state.inventoryInfo.inventory.forEach((item) => {
+					let currentItemName = JSON.stringify(item.name);
+					let currentItemQuantitiy = JSON.stringify(item.quantity);
+					this.state.inventoryString +=
+						currentItemName + ': ' + currentItemQuantitiy + ' \n ';
+				});
+
+				console.log(
+					'Inventory info: ' +
+						JSON.stringify(this.state.inventoryInfo.inventory)
+				);
+				this.forceUpdate();
 				//console.log(responseJson);
 			})
 			.catch((error) => {
@@ -44,23 +48,22 @@ class PantryInventoryScreen extends Component {
 			});
 	};
 
-    componentDidMount() {
-        {this.getEntry()}
-    }
+	componentDidMount() {
+		{
+			this.getEntry();
+		}
+		console.log('mounted');
+	}
 
 	render() {
 		return (
-            <View style={styles.container}>
-				<Text style = {styles.headerText}> Inventory: </Text>
-				
-                <Text style = {styles.bodyText}> 
-                    { this.state.inventoryString } 
-                </Text>
-                <Button
+			<View style={styles.container}>
+				<Text style={styles.headerText}> Inventory: </Text>
+
+				<Text style={styles.bodyText}>{this.state.inventoryString}</Text>
+				<Button
 					title='Back'
-					onPress={() =>
-						this.props.navigation.navigate('PantryScreen')
-					}
+					onPress={() => this.props.navigation.navigate('PantryScreen')}
 				/>
 			</View>
 		);
@@ -82,13 +85,13 @@ const styles = StyleSheet.create({
 		borderColor: 'black',
 		marginBottom: 10,
 	},
-    bodyText: {
+	bodyText: {
 		fontSize: 15,
 		color: 'black',
 		justifyContent: 'center',
 		textAlign: 'center',
 	},
-    headerText: {
+	headerText: {
 		fontSize: 20,
 		color: 'black',
 		justifyContent: 'center',
