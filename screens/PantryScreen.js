@@ -27,10 +27,8 @@ const patchEntry = {
 
 	body: JSON.stringify({
 		inventory: [
-			{ itemID: 1, name: 'celery', quantity: -2 },
-			{ itemID: 2, name: 'carrot', quantity: 3 },
-			{ itemID: 3, name: 'corn', quantity: 2 },
-			{ itemID: 4, name: 'fruit', quantity: 4 },
+			{ itemID: 1, name: 'lentils', quantity: 6 },
+			{ itemID: 2, name: 'collard greens', quantity: 54 },
 		],
 	}),
 };
@@ -105,7 +103,7 @@ class PantryScreen extends Component {
 
 	state = {
 		// dbID: this.props.navigation.getParam('dbID', 'notpantry'),
-		dbID: '6033670df94993f43908e153',
+		dbID: '603dd8a82af17a6416963183',
 	};
 
 	render() {

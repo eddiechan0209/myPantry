@@ -1,27 +1,65 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import {
+	View,
+	Text,
+	StyleSheet,
+	Button,
+	TouchableOpacity,
+	ScrollView,
+} from 'react-native';
 import firebase from 'firebase';
+import {
+	createBottomTabNavigator,
+	createStackNavigator,
+} from 'react-navigation';
 
 class PantryListScreen extends Component {
-	seePantries() {
+	seePantries = () => {
+		console.log('seePantry()');
+		const pantryKeys = [];
 		firebase
 			.database()
-			.ref('users/')
+			.ref('/pantry')
 			.on('value', (snapshot) => {
-				const pantries = snapshot.val();
-				console.log('pantries ' + pantries);
+				this.state.pantryDic = snapshot.val();
+				for (key in snapshot.val()) {
+					pantryKeys.push(key);
+				}
+				this.state.pantryKeys = pantryKeys;
 			});
-	}
+		console.log(pantryKeys);
+		console.log('---------');
+		this.forceUpdate();
+	};
 
+	openPantryPage = () => {};
+
+	state = { pantryDic: '', pantryKeys: [] };
 	render() {
 		return (
 			<View style={styles.container}>
 				<Text>PantryListScreen</Text>
 				<Button
+					style={styles.button}
 					title={'See Pantries'}
 					style={styles.input}
 					onPress={() => this.seePantries()}
 				/>
+
+				{/* <View style={styles.names}> */}
+				{/* Pantries: */}
+				<ScrollView>
+					{this.state.pantryKeys.map((key) => {
+						return (
+							<Text>
+								{'\n\n'}
+								<TouchableOpacity onPress={() => this.openPantryPage(key)}>
+									<Text>{this.state.pantryDic[key].pantryName}</Text>
+								</TouchableOpacity>
+							</Text>
+						);
+					})}
+				</ScrollView>
 			</View>
 		);
 	}
