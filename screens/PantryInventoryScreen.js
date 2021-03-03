@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList, TextInput, ViewComponent } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http://192.168.1.70:3000/pantries';
+const SERVER_URL = 'http://10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
+const Cart = require('../models/cart');
 
 class PantryInventoryScreen extends Component {
 	state = {
@@ -15,11 +16,69 @@ class PantryInventoryScreen extends Component {
 		pantryEmail: null,
 		inventoryInfo: {},
 		inventoryString: '',
+        cartID: '603f5f1bbc971affdd03da09', // Hardcoding for now until a cart is created with each user
+        cartItem: null, 
+        cartQuantity: null, 
+		inventory: [],
+		itemID: null, 
+		itemName: null, 
+		itemQuantity: null, 
+	};
+
+    addToCart = async () => {
+		console.log(
+			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
+		);
+
+		// Adding the values for the item that the user wants to add 
+		const cartEntry = {
+			method: 'PATCH',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				inventory: [
+					{
+						itemID: this.state.itemID,
+						name: this.state.itemName,
+						quantity: this.state.itemQuantity,
+					},
+				],
+			}),
+		};
+
+		console.log(cartEntry);
+		console.log('id: ' + this.state.cartID);
+		console.log('in update entry');
+		// Running update and then updating the values
+
+		// Possible error to check for could be if Pantry is trying to add to existing item
+		// like if the pantry is trying to add more apples and not replace total with the given
+		// number
+		return fetch(SERVER_URL + 'cart/' + this.state.cartID, cartEntry)
+			.then((response) => {
+				if (response.status >= 200 && response.status <= 299) {
+					return response.json();
+				} else {
+					console.log('error in UPDATE. statuscode: ' + response.status);
+				}
+			})
+			.then((responseJson) => {
+				console.log('in second then');
+				// console.log('reponse :' + JSON.stringify(responseJson));
+				console.log(responseJson);
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('^ is the error, in UPDATE');
+			});
 	};
 
 	getEntry = async () => {
 		console.log('id: ' + this.state.pantryID);
-		return fetch(SERVER_URL + '/' + this.state.pantryID)
+		console.log(SERVER_URL + 'pantries/' + this.state.pantryID);
+		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
 					console.log('Working');
@@ -33,12 +92,8 @@ class PantryInventoryScreen extends Component {
 
 				this.state.inventoryInfo = responseJson;
 				console.log(JSON.stringify(this.state.inventoryInfo));
-				this.state.inventorySting = '';
 				this.state.inventoryInfo.inventory.forEach((item) => {
-					let currentItemName = JSON.stringify(item.name);
-					let currentItemQuantitiy = JSON.stringify(item.quantity);
-					this.state.inventoryString +=
-						currentItemName + ': ' + currentItemQuantitiy + ' \n ';
+					this.state.inventory.push(item);
 				});
 
 				console.log(
@@ -71,6 +126,7 @@ class PantryInventoryScreen extends Component {
 				pantryEmail: dic[key].email,
 				inventoryInfo: {},
 				inventoryString: '',
+				inventory: [],
 			},
 			() => (
 				console.log(this.state),
@@ -78,6 +134,9 @@ class PantryInventoryScreen extends Component {
 				console.log('----------------------')
 			)
 		);
+
+		this.state.inventory = [];
+
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
 		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
 		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
@@ -98,13 +157,23 @@ class PantryInventoryScreen extends Component {
 							onPress={() => this.props.navigation.navigate('DashboardScreen')}
 						/>
 					</View>
+
 					<View style={styles.title}>
 						<Text style={styles.titleText}>{this.state.pantryName}</Text>
+					</View>
+
+					<View>
+						<Button
+								title= 'ONLY PANTRY: Edit Inventory'
+								onPress={() => this.props.navigation.navigate('InputPantryInfoScreen', {
+									pantryID: this.state.pantryID
+								})}
+						/>
 					</View>
 				</View>
 
 				<View style={styles.boxes}>
-					{this.state.inventoryInfo === {} ? (
+					{/*this.state.inventoryInfo === {} ? (
 						<Text>Getting inventory...</Text>
 					) : this.state.inventoryInfo.inventory === (null || undefined) ? (
 						<Text>Inventory doesn't exist</Text>
@@ -122,7 +191,45 @@ class PantryInventoryScreen extends Component {
 								</View>
 							);
 						})
-					)}
+					)*/}
+						<View style={styles.boxes, {flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
+							{this.state.inventory.map(item => (
+								<View style={styles.boxes, {flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
+									
+									<Text style={styles.bodyText}>	
+										{item.name} 
+									</Text>
+									
+									<TextInput style={styles.bodyText}
+										onChangeText={(itemQuantity) => this.setState({ itemQuantity })}
+										placeholder={'Item Quantity '}
+										style={styles.input}
+										keyboardType={'numeric'}
+									/>
+
+									<TextInput style={styles.bodyText}
+										onChangeText={(itemID) => this.setState({ itemID })}
+										placeholder={'Item ID '}
+										style={styles.input}
+										keyboardType={'numeric'}
+									/>
+
+									<Button 
+										style={styles.bodyText} title = 'Add'
+
+										onPress={() => {
+											this.state.itemName = item.name;
+											this.addToCart()
+										}
+										}
+									></Button>
+
+								</View>
+							))}
+						</View>
+
+				
+
 					{/* {Object.entries(this.state.inventoryInfo).map((tuple) => {
 								return <Text>{tuple[0]}</Text>;
 							})} */}
@@ -142,6 +249,7 @@ class PantryInventoryScreen extends Component {
 							<Text>Inner</Text>
 						</View>
 					</View> */}
+                        
 				</View>
 			</View>
 
@@ -196,6 +304,15 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		// backgroundColor: 'gray',
 	},
+	bodyText: {
+		fontSize: 20, 
+		//width: '100%',
+		//height: '15%',
+		//justifyContent: 'center',
+		//textAlign: 'center',
+		//alignItems: 'center',
+		// backgroundColor: 'gray',
+	},
 	boxes: {
 		width: '100%',
 		height: '85%',
@@ -229,5 +346,12 @@ const styles = StyleSheet.create({
 	},
 	titleText: {
 		fontSize: 30,
+	},
+	input: {
+		width: 100,
+		height: 44,
+		borderWidth: 1,
+		borderColor: 'black',
+		marginBottom: 10,
 	},
 });

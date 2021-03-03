@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const pantrySchema = new mongoose.Schema(
+const cartSchema = new mongoose.Schema(
 	{
 		name: {
 			type: String,
@@ -42,4 +42,4 @@ const pantrySchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model('Pantry', pantrySchema);
+module.exports = mongoose.model('Cart', cartSchema);

@@ -5,7 +5,7 @@ import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
 
-const SERVER_URL = 'http:/192.168.1.70:3000/pantries';
+const SERVER_URL = 'http:/10.0.0.85:3000/pantries';
 
 const pantryEntry = {
 	method: 'PATCH',
@@ -50,8 +50,10 @@ class InputPantryInfoScreen extends Component {
 		};
 
 		console.log(pantryEntry);
+		this.state.dbID = this.props.navigation.getParam('pantryID', null);
 		console.log('id: ' + this.state.dbID);
 		console.log('in updateentry');
+		
 		// Running update and then updating the values
 
 		// Possible error to check for could be if Pantry is trying to add to existing item
@@ -78,7 +80,7 @@ class InputPantryInfoScreen extends Component {
 	};
 
 	state = {
-		dbID: '6033670df94993f43908e153',
+		dbID: '',
 		itemID: '',
 		itemName: '',
 		itemQuantity: '',
@@ -114,9 +116,7 @@ class InputPantryInfoScreen extends Component {
 						console.log('dashboard pressed');
 						console.log(this.props.navigation.getParam('dbID', 'notPantry'));
 						console.log('dashboard pressed after');
-						this.props.navigation.navigate('PantryScreen', {
-							dbID: this.props.navigation.getParam('dbID', 'notPantry'),
-						});
+						this.props.navigation.navigate('DashboardScreen');
 					}}
 				/>
 			</View>

@@ -2,7 +2,7 @@ GET http://localhost:3000/pantries
 
 ###
 
-GET http://localhost:3000/pantries/6031b3f2954a16d72b39238d
+GET http://localhost:3000/pantries/603fc4502d28fd065c298296
 
 ###
 
