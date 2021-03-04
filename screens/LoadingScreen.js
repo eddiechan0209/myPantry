@@ -9,9 +9,29 @@ class LoadingScreen extends Component {
 
 	checkIfLoggedIn = () => {
 		firebase.auth().onAuthStateChanged((user) => {
+			console.log(user);
 			if (user) {
-				this.props.navigation.navigate('DashboardScreen');
+				var isPantry = false;
+				firebase
+					.database()
+					.ref('/pantry')
+					.once('value')
+					.then((snapshot) => {
+						for (const uid in snapshot.val()) {
+							if (uid == user.uid) {
+								this.props.navigation.navigate('PantryDashboardScreen', {
+									pantryKey: uid,
+									pantryDic: snapshot.val(),
+								});
+								isPantry = true;
+							}
+						}
+						if (!isPantry) {
+							this.props.navigation.navigate('DashboardScreen');
+						}
+					});
 			} else {
+				console.log('new user');
 				this.props.navigation.navigate('LoginScreen');
 			}
 		});
@@ -20,7 +40,7 @@ class LoadingScreen extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<ActivityIndicator size="large" />
+				<ActivityIndicator size='large' />
 			</View>
 		);
 	}

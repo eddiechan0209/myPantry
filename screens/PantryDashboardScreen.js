@@ -8,13 +8,14 @@ import {
 	TextInput,
 	ViewComponent,
 	Modal,
+	TouchableOpacity,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
-const Cart = require('../models/cart');
+import firebase from 'firebase';
 
-class PantryInventoryScreen extends Component {
+class PantryDashboardScreen extends Component {
 	state = {
 		pantryKey: null,
 		pantryDic: null,
@@ -25,70 +26,10 @@ class PantryInventoryScreen extends Component {
 		pantryEmail: null,
 		inventoryInfo: {},
 		inventoryString: '',
-		cartID: '603f5f1bbc971affdd03da09', // Hardcoding for now until a cart is created with each user
-		cartItem: null,
-		cartQuantity: null,
-		inventory: [],
+		modalVisible: false,
 		itemID: null,
 		itemName: null,
 		itemQuantity: null,
-		modalVisible: false,
-	};
-
-	addToCart = async () => {
-		console.log(
-			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
-		);
-
-		// Adding the values for the item that the user wants to add
-		const cartEntry = {
-			method: 'PATCH',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				inventory: [
-					{
-						itemID: this.state.itemID,
-						name: this.state.itemName,
-						quantity: this.state.itemQuantity,
-					},
-				],
-			}),
-		};
-
-		console.log(cartEntry);
-		console.log('id: ' + this.state.cartID);
-		console.log('in update entry');
-		// Running update and then updating the values
-
-		// Possible error to check for could be if Pantry is trying to add to existing item
-		// like if the pantry is trying to add more apples and not replace total with the given
-		// number
-		return fetch(SERVER_URL + 'cart/' + this.state.cartID, cartEntry)
-			.then((response) => {
-				if (response.status >= 200 && response.status <= 299) {
-					return response.json();
-				} else {
-					console.log('error in UPDATE. statuscode: ' + response.status);
-				}
-			})
-			.then((responseJson) => {
-				console.log('in second then');
-				// console.log('reponse :' + JSON.stringify(responseJson));
-				console.log(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-				console.error('^ is the error, in UPDATE');
-			});
-	};
-
-	toggleModalVisibility = () => {
-		this.setState((prevState) => ({
-			modalVisible: !prevState.modalVisible,
-		}));
 	};
 
 	getEntry = async () => {
@@ -125,6 +66,63 @@ class PantryInventoryScreen extends Component {
 			});
 	};
 
+	updateInventory = async () => {
+		console.log(
+			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
+		);
+		console.log('pantryID: ' + this.state.pantryID);
+		// Adding the values that were inputted to the existing inventory list
+		// pantryEntry.inventory.push({
+		// 	itemID: 6,
+		// 	name: this.state.itemName,
+		// 	quantity: parseInt(this.state.itemQuantity),
+		// });
+
+		const patchEntry = {
+			method: 'PATCH',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				inventory: [
+					{
+						itemID: this.state.itemID,
+						name: this.state.itemName,
+						quantity: parseInt(this.state.itemQuantity),
+					},
+				],
+			}),
+		};
+
+		console.log(patchEntry);
+
+		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID, patchEntry)
+			.then((response) => {
+				if (response.status >= 200 && response.status <= 299) {
+					return response.json();
+				} else {
+					console.log('error in UPDATE. statuscode: ' + response.status);
+				}
+			})
+			.then((responseJson) => {
+				console.log('in second then');
+				// console.log('reponse :' + JSON.stringify(responseJson));
+				console.log(responseJson);
+				this.setState({
+					// itemID: null,
+					// itemName: null,
+					// itemQuantity: null,
+					modalView: false,
+				});
+				// console.log(this.state);
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('^ is the error, in UPDATE');
+			});
+	};
+
 	componentDidMount = () => {
 		console.log('---componentDidMount()---');
 		const dic = this.props.navigation.getParam('pantryDic', null);
@@ -140,6 +138,13 @@ class PantryInventoryScreen extends Component {
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
 				pantryEmail: dic[key].email,
+				inventoryInfo: {},
+				inventoryString: '',
+				inventory: [],
+				modalVisible: false,
+				itemID: null,
+				itemName: null,
+				itemQuantity: null,
 			},
 			() => (
 				console.log(this.state),
@@ -155,7 +160,11 @@ class PantryInventoryScreen extends Component {
 		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
 	};
 
-	yes = () => {};
+	toggleModalVisibility = () => {
+		this.setState((prevState) => ({
+			modalVisible: !prevState.modalVisible,
+		}));
+	};
 
 	render() {
 		return (
@@ -179,7 +188,26 @@ class PantryInventoryScreen extends Component {
 									onPress={() => this.toggleModalVisibility()}
 								/>
 							</View>
-							<Text>Cart Display</Text>
+							<TextInput
+								value={this.state.itemID}
+								onChangeText={(itemID) => this.setState({ itemID })}
+								placeholder={'Item ID'}
+								style={styles.input}
+							/>
+							<TextInput
+								value={this.state.itemName}
+								onChangeText={(itemName) => this.setState({ itemName })}
+								placeholder={'Item Name'}
+								style={styles.input}
+							/>
+							<TextInput
+								value={this.state.itemQuantity}
+								onChangeText={(itemQuantity) => this.setState({ itemQuantity })}
+								placeholder={'Item Quantity'}
+								style={styles.input}
+							/>
+
+							<Button title='Update' onPress={() => this.updateInventory()} />
 						</View>
 					</View>
 				</Modal>
@@ -201,95 +229,50 @@ class PantryInventoryScreen extends Component {
 				</View>
 
 				<View style={styles.boxes}>
-					<View
-						style={
-							(styles.boxes,
-							{ flex: 1, flexDirection: 'column', justifyContent: 'center' })
-						}
-					>
-						{this.state.inventory.map((item) => (
-							<View
-								style={
-									(styles.boxes,
-									{
-										flex: 1,
-										flexDirection: 'row',
-										justifyContent: 'space-around',
-									})
-								}
-							>
-								<Text style={styles.bodyText}>{item.name}</Text>
-
-								<TextInput
-									style={styles.bodyText}
-									onChangeText={(itemQuantity) =>
-										this.setState({ itemQuantity })
-									}
-									placeholder={'Item Quantity '}
-									style={styles.input}
-									// keyboardType={'numeric'}
-								/>
-
-								<TextInput
-									style={styles.bodyText}
-									onChangeText={(itemID) => this.setState({ itemID })}
-									placeholder={'Item ID '}
-									style={styles.input}
-									// keyboardType={'numeric'}
-								/>
-
-								<Button
-									style={styles.bodyText}
-									title='Add'
-									onPress={() => {
-										this.state.itemName = item.name;
-										this.addToCart();
-									}}
-								></Button>
-							</View>
-						))}
-					</View>
+					{this.state.inventoryInfo === {} ? (
+						<Text>Getting inventory...</Text>
+					) : this.state.inventoryInfo.inventory === (null || undefined) ? (
+						<Text>Inventory doesn't exist</Text>
+					) : (
+						Object.values(this.state.inventoryInfo.inventory).map((json) => {
+							return (
+								<View style={styles.box}>
+									<View style={styles.inner}>
+										<Text>
+											{json.name}
+											{': '}
+											{json.quantity}
+										</Text>
+									</View>
+								</View>
+							);
+						})
+					)}
 				</View>
+
 				<View style={styles.footer}>
-					<Button
-						title='See Cart'
-						onPress={() => {
-							this.toggleModalVisibility();
-						}}
-					></Button>
+					<View>
+						<Button
+							title='Edit Inventory'
+							onPress={() => {
+								this.toggleModalVisibility();
+								this.setState({
+									itemID: null,
+									itemName: null,
+									itemQuantity: null,
+								});
+							}}
+						/>
+					</View>
+					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
 				</View>
 			</View>
 		);
 	}
 }
-export default PantryInventoryScreen;
+export default PantryDashboardScreen;
 
 const styles = StyleSheet.create({
-	// container: {
-	// 	flex: 1,
-	// 	justifyContent: 'center',
-	// 	alignItems: 'center',
-	// },
-	// input: {
-	// 	width: 200,
-	// 	height: 44,
-	// 	padding: 10,
-	// 	borderWidth: 1,
-	// 	borderColor: 'black',
-	// 	marginBottom: 10,
-	// },
-	// bodyText: {
-	// 	fontSize: 15,
-	// 	color: 'black',
-	// 	justifyContent: 'center',
-	// 	textAlign: 'center',
-	// },
-	// headerText: {
-	// 	fontSize: 20,
-	// 	color: 'black',
-	// 	justifyContent: 'center',
-	// 	textAlign: 'center',
-	// },
 	container: {
 		flex: 1,
 	},
@@ -299,15 +282,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		textAlign: 'center',
 		alignItems: 'center',
-		// backgroundColor: 'gray',
-	},
-	bodyText: {
-		fontSize: 20,
-		//width: '100%',
-		//height: '15%',
-		//justifyContent: 'center',
-		//textAlign: 'center',
-		//alignItems: 'center',
 		// backgroundColor: 'gray',
 	},
 	boxes: {
@@ -336,6 +310,15 @@ const styles = StyleSheet.create({
 		height: '10%',
 		bottom: 20,
 	},
+	errorText: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	backPage: {
 		...StyleSheet.absoluteFillObject,
 		alignSelf: 'flex-end',
@@ -349,12 +332,18 @@ const styles = StyleSheet.create({
 	titleText: {
 		fontSize: 30,
 	},
-	input: {
-		width: 100,
-		height: 44,
-		borderWidth: 1,
-		borderColor: 'black',
-		marginBottom: 10,
+	back: {
+		...StyleSheet.absoluteFillObject,
+		alignSelf: 'flex-end',
+		marginTop: 10,
+		marginLeft: 5,
+		// position: 'absolute',
+	},
+	modal: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		// transform: translate(-50%, -50%);
 	},
 	centeredView: {
 		flex: 1,
@@ -406,5 +395,4 @@ const styles = StyleSheet.create({
 		marginLeft: 5,
 		// position: 'absolute',
 	},
-	cart: {},
 });

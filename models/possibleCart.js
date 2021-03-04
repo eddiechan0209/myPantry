@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const cartSchema = new mongoose.Schema(
+const cart2Schema = new mongoose.Schema(
 	{
 		pantries: [
 			{
@@ -47,4 +47,4 @@ const cartSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model('Cart', cartSchema);
+module.exports = mongoose.model('Cart2', cart2Schema);

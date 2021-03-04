@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Button, FlatList } from 'react-native';
-const SERVER_URL = 'http://10.0.0.85:3000/pantries';
+const SERVER_URL = 'http://192.168.1.70:3000/pantries';
 const Pantry = require('../models/pantry');
+import { AntDesign } from '@expo/vector-icons';
 
 // empty db
 const postEntry = {
@@ -27,8 +28,9 @@ const patchEntry = {
 
 	body: JSON.stringify({
 		inventory: [
-			{ itemID: 1, name: 'lentils', quantity: 6 },
-			{ itemID: 2, name: 'collard greens', quantity: 54 },
+			{ itemID: 1, name: 'Lentils', quantity: 6 },
+			{ itemID: 2, name: 'Collard Greens', quantity: 20 },
+			{ itemID: 3, name: 'Canned Tomatoes', quantity: 100 },
 		],
 	}),
 };
@@ -103,7 +105,7 @@ class PantryScreen extends Component {
 
 	state = {
 		// dbID: this.props.navigation.getParam('dbID', 'notpantry'),
-		dbID: '603dd8a82af17a6416963183',
+		dbID: '60408f1488efa2a04f88532b',
 	};
 
 	render() {
@@ -113,7 +115,10 @@ class PantryScreen extends Component {
 		//console.log(JSON.stringify(pantryExample));
 		return (
 			<View style={styles.container}>
-				<Text>PantryScreen</Text>
+				<Text>
+					PantryScreen
+					{SERVER_URL}
+				</Text>
 
 				<Button title='postEntry' onPress={() => this.postEntry()} />
 				<Button title='getEntry' onPress={() => this.getEntry()} />
@@ -131,6 +136,15 @@ class PantryScreen extends Component {
 						this.props.navigation.navigate('PantryInventoryScreen')
 					}
 				/>
+				<View style={styles.back}>
+					<AntDesign
+						name='left'
+						size={24}
+						color='black'
+						position='absolute'
+						onPress={() => this.props.navigation.navigate('LoginScreen')}
+					/>
+				</View>
 
 				{/* <Text>{this.state.numCarrots}</Text> */}
 			</View>

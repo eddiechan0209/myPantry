@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
-
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import LoadingScreen from './screens/LoadingScreen';
@@ -10,6 +9,7 @@ import CreateAccountScreen from './screens/CreateAccountScreen';
 import PantryScreen from './screens/PantryScreen';
 import InputPantryInfoScreen from './screens/InputPantryInfoScreen';
 import PantryInventoryScreen from './screens/PantryInventoryScreen';
+import PantryDashboardScreen from './screens/PantryDashboardScreen';
 
 import firebase from 'firebase';
 import { firebaseConfig } from './config';
@@ -30,7 +30,8 @@ const AppSwitchNavigator = createSwitchNavigator({
 	CreateAccountScreen: CreateAccountScreen,
 	PantryScreen: PantryScreen,
 	InputPantryInfoScreen: InputPantryInfoScreen,
-	PantryInventoryScreen: PantryInventoryScreen
+	PantryInventoryScreen: PantryInventoryScreen,
+	PantryDashboardScreen: PantryDashboardScreen,
 });
 
 const AppNavigator = createAppContainer(AppSwitchNavigator);

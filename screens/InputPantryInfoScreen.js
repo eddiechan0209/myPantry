@@ -5,7 +5,7 @@ import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
 
-const SERVER_URL = 'http:/10.0.0.85:3000/pantries';
+const SERVER_URL = 'http:/192.168.1.70:3000/pantries';
 
 const pantryEntry = {
 	method: 'PATCH',
@@ -53,7 +53,7 @@ class InputPantryInfoScreen extends Component {
 		this.state.dbID = this.props.navigation.getParam('pantryID', null);
 		console.log('id: ' + this.state.dbID);
 		console.log('in updateentry');
-		
+
 		// Running update and then updating the values
 
 		// Possible error to check for could be if Pantry is trying to add to existing item
@@ -109,14 +109,11 @@ class InputPantryInfoScreen extends Component {
 
 				<Button title='Add Values' onPress={() => this.addValuesToPantry()} />
 
-				<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
+				{/* <Button title='Sign out' onPress={() => firebase.auth().signOut()} /> */}
 				<Button
 					title='Back to Pantry View'
 					onPress={() => {
-						console.log('dashboard pressed');
-						console.log(this.props.navigation.getParam('dbID', 'notPantry'));
-						console.log('dashboard pressed after');
-						this.props.navigation.navigate('DashboardScreen');
+						this.props.navigation.navigate('PantryDashboardScreen', {});
 					}}
 				/>
 			</View>

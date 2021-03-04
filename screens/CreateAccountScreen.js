@@ -5,11 +5,11 @@ import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
 import { watchPositionAsync } from 'expo-location';
 
-const SERVER_URL = 'http://10.0.0.85:3000/pantries';
+const SERVER_URL = 'http://192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {
-	createDB = async () => {
+	createMongoInventory = async () => {
 		const pantry = {
 			method: 'POST',
 			headers: {
@@ -23,19 +23,48 @@ class CreateAccountScreen extends Component {
 			}),
 		};
 
-		fetch(SERVER_URL, pantry)
+		fetch(SERVER_URL + 'pantries', pantry)
 			.then(
 				(response) => response.json(),
 				console.log('successfully created new pantry DB')
 			)
 			.then((responseJson) => {
-				this.state.dbID = responseJson._id;
-				console.log(responseJson._id);
-				console.log('after 33' + this.state.dbID);
+				this.state.pantryID = responseJson._id;
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('error in trying to create DB');
+				console.error('error in createMongoInventory()');
+			});
+	};
+
+	createMongoCart = async () => {
+		const cart = {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				// change model?
+				name: null,
+				address: null,
+				pickupTime: null,
+				phone: null,
+				inventory: [],
+			}),
+		};
+
+		fetch(SERVER_URL + 'cart', cart)
+			.then(
+				(response) => response.json(),
+				console.log('successfully created new user cart')
+			)
+			.then((responseJson) => {
+				this.state.cartID = responseJson._id;
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('error in createMongoCart()');
 			});
 	};
 
@@ -49,9 +78,11 @@ class CreateAccountScreen extends Component {
 			)
 			.then(() => {
 				console.log('Signup successful.');
-				this.createDB();
+				this.createMongoInventory();
+				this.createMongoCart();
 				//await is waiting for an asychronous function to complete
 
+				// If we want to implement email verification
 				// var actionCodeSettings = {
 				//     url: 'mypantry-924e1.firebaseapp.com',
 				//     iOS: {
@@ -67,8 +98,8 @@ class CreateAccountScreen extends Component {
 				//     // one to use.
 				//     dynamicLinkDomain: "example.page.link"
 				// };
-
 				// link = firebase.auth().sendSignInLinkToEmail(this.state.emailaddress, actionCodeSettings);
+
 				var credential = firebase.auth.EmailAuthProvider.credential(
 					this.state.emailaddress,
 					this.state.password
@@ -90,7 +121,7 @@ class CreateAccountScreen extends Component {
 									pantryName: this.state.pantryName,
 									address: this.state.address,
 									phone: this.state.phone,
-									dbID: this.state.dbID,
+									pantryID: this.state.pantryID,
 									created_at: Date.now(),
 								});
 						} else {
@@ -101,23 +132,10 @@ class CreateAccountScreen extends Component {
 									email: this.state.emailaddress,
 									first_name: this.state.firstname,
 									last_name: this.state.lastname,
+									cartID: this.state.cartID,
 								});
 						}
-
-						// else{
-						//     firebase
-						//     .database()
-						//     .ref("/emailUsers/" + result.user.uid).update({
-						//         last_logged_in: Date.now()
-						//     })
-						// }
 					});
-				// this.props.navigation.navigate('DashboardScreen');
-				console.log(this.state.dbID);
-				console.log('dude');
-				this.props.navigation.navigate('DashboardScreen', {
-					dbID: this.state.dbID,
-				});
 			})
 			.catch((error) => {
 				console.log('in error section');
@@ -199,7 +217,8 @@ class CreateAccountScreen extends Component {
 		address: '',
 		phone: '',
 		error: '',
-		dbID: '',
+		pantryID: '',
+		cartID: '',
 	};
 
 	render() {
