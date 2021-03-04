@@ -40,11 +40,39 @@ Content-Type: application/json
     "name": "New Pantry",
     "address": "12345 Adress Lane", 
     "inventory": [
-        { "name": "Broccoli", "amount": 10 }, 
-        {"name": "Apple", "amount": 10}
+        { "itemId": 1, "name": "Broccoli", "quantity": 10 }, 
+        {"itemId": 2, "name": "Apple", "quantity": 10}
         ]
 }
 
 ###
 
 DELETE http://localhost:3000/pantries/60137240e0a234b18679dc14
+
+###
+
+GET http://localhost:3000/cart
+
+###
+
+POST http://localhost:3000/cart
+Content-Type: application/json
+
+{
+    "name": "Fake user",
+	"address": "123 Street",
+    "pickupTime": "fake time",
+    "phone": "123456",
+	"inventory": [
+		]
+}
+
+### 
+
+
+PATCH http://localhost:3000/cart/603f5f1bbc971affdd03da09
+Content-Type: application/json
+
+{
+    "inventory": "Aspargus"
+}

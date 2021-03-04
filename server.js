@@ -15,6 +15,9 @@ db.once('open', () => console.log('Connected to DB'));
 app.use(express.json());
 const pantryRouter = require('./routes/pantries');
 app.use('/pantries', pantryRouter);
+
+const cartRouter = require('./routes/cart');
+app.use('/cart', cartRouter);
 // localhost:3000/pantries
 
 app.listen(3000, () => console.log('Server Started'));

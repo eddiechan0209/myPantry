@@ -31,8 +31,8 @@ router.post('/', async (req, res) => {
         phone: req.body.phone, 
 	});
 	try {
-		const newPantry = await cart.save();
-		res.status(201).json(newPantry);
+		const newCart = await cart.save();
+		res.status(201).json(newCart);
 	} catch (err) {
 		res.status(400).json({ message: err.message });
 	}
@@ -108,7 +108,7 @@ router.delete('/:id', getCart, async (req, res) => {
 	console.log('in delete one');
 	try { 
 		await res.cart.remove();
-		res.json({ message: 'Deleted Pantry: ' + req.id });
+		res.json({ message: 'Deleted Cart: ' + req.id });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -118,7 +118,7 @@ router.delete('/:id', getCart, async (req, res) => {
 async function getCart(req, res, next) {
 	let cart;
 	try {
-		cart = await Pantry.findById(req.params.id);
+		cart = await Cart.findById(req.params.id);
 		if (cart == null) {
 			return res.status(404).json({ message: 'Cannot find cart.' });
 		}
