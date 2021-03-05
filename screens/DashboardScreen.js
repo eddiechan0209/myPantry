@@ -6,14 +6,18 @@ import {
 	Button,
 	ScrollView,
 	TouchableOpacity,
+	UseState,
 } from 'react-native';
+
+import { Asset } from 'expo-asset';
+import AppLoading from 'expo-app-loading';
 import firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
 
 class DashboardScreen extends Component {
-	// MAP CODE TAKEN FROM https://snack.expo.io/@professorxii/expo-map-and-location-example
+	// MAP CODE REFERENCE: https://snack.expo.io/@professorxii/expo-map-and-location-example
 
 	state = {
 		mapRegion: null,
@@ -21,16 +25,18 @@ class DashboardScreen extends Component {
 		locationResult: null,
 		pantryKeys: [],
 		pantryDic: null,
+		isReady: false,
 	};
 
 	componentDidMount = () => {
-		this.getLocationAsync();
 		this.seePantries();
+		this.getLocationAsync();
 	};
 
 	handleMapRegionChange = (mapRegion) => {
-		// console.log(mapRegion);
-		this.setState({ mapRegion });
+		this.setState(
+			{ mapRegion }
+		);
 	};
 
 	async getLocationAsync() {
@@ -47,13 +53,16 @@ class DashboardScreen extends Component {
 		this.setState({ locationResult: JSON.stringify(location) });
 
 		// Center the map on the location we just fetched.
-		this.setState({
+		this.setState(
+			{
 			mapRegion: {
 				latitude: location.coords.latitude,
 				longitude: location.coords.longitude,
 				latitudeDelta: 0.0922,
 				longitudeDelta: 0.0421,
 			},
+			pantryKeys: this.state.pantryKeys,
+			pantryDic: this.state.pantryDic,
 		});
 	}
 
@@ -91,6 +100,14 @@ class DashboardScreen extends Component {
 	};
 
 	render() {
+		if (!this.state.isReady) {
+		return (
+			<AppLoading
+				startAsync={this.seePantries, this.getLocationAsync}
+				onFinish={() => this.state.isReady = true}
+				onError={console.warn}
+			/>
+		); }
 		return (
 			<View style={styles.container}>
 				{/* <Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text> */}
@@ -111,25 +128,11 @@ class DashboardScreen extends Component {
 					)}
 				</View>
 
-				{/* <Text>Location: {this.state.locationResult}</Text>
-				<Button
-					title='Find Closest Pantries'
-					onPress={() => this.handleClickPantries()}
-				/>*/}
-
-				{/* <Button
-					style={styles.button}
-					title={'See Pantries'}
-					style={styles.input}
-					onPress={() => this.seePantries()}
-				/> */}
-
 				<View style={styles.list}>
-					{/* Pantries: */}
 					<ScrollView>
 						{this.state.pantryKeys.map((key) => {
 							return (
-								<Text>
+								<Text key= {key}>
 									{'\n\n'}
 									<TouchableOpacity onPress={() => this.openPantryPage(key)}>
 										<Text>{this.state.pantryDic[key].pantryName}</Text>
@@ -144,17 +147,6 @@ class DashboardScreen extends Component {
 					<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 				</View>
 
-				{/* <Button
-					title='Pantry Inventory Playground'
-					onPress={() => {
-						console.log('dashboard pressed');
-						console.log(this.props.navigation.getParam('dbID', 'notPantry'));
-						console.log('dashboard pressed after');
-						this.props.navigation.navigate('PantryScreen', {
-							dbID: this.props.navigation.getParam('dbID', 'notPantry'),
-						});
-					}}
-				/> */}
 			</View>
 		);
 	}

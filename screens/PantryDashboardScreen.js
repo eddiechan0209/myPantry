@@ -152,7 +152,7 @@ class PantryDashboardScreen extends Component {
 				console.log('----------------------')
 			)
 		);
-
+		
 		this.state.inventory = [];
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
