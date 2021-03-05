@@ -11,7 +11,7 @@ import {
 	TouchableOpacity,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
+const SERVER_URL = 'http:/10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 
