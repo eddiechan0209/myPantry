@@ -8,9 +8,10 @@ import {
 	TextInput,
 	ViewComponent,
 	Modal,
+	Keyboard,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 const Cart = require('../models/cart');
 import firebase from 'firebase';
@@ -36,7 +37,6 @@ class PantryInventoryScreen extends Component {
 		modalVisible: false,
 		cartInfo: {},
 		cartInventory: [],
-
 	};
 
 	addToCart = async () => {
@@ -110,7 +110,6 @@ class PantryInventoryScreen extends Component {
 				this.state.inventoryInfo.inventory.forEach((item) => {
 					this.state.inventory.push(item);
 				});
-				
 
 				console.log(
 					'Inventory info: ' +
@@ -136,14 +135,13 @@ class PantryInventoryScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				//console.log('reponse :' + JSON.stringify(responseJson));
+				console.log('reponse :' + JSON.stringify(responseJson));
 
 				this.state.cartInfo = responseJson;
 
 				this.state.cartInfo.inventory.forEach((item) => {
 					this.state.cartInventory.push(item);
 				});
-				
 
 				this.forceUpdate();
 				//console.log(responseJson);
@@ -160,11 +158,24 @@ class PantryInventoryScreen extends Component {
 		const key = this.props.navigation.getParam('pantryKey', null);
 
 		const currUser = firebase.auth().currentUser;
+		firebase
+			.database()
+			.ref('/consumer')
+			.once('value')
+			.then((snapshot) => {
+				for (const uid in snapshot.val()) {
+					if (uid === currUser.uid) {
+						this.setState({ cartID: snapshot.val()[uid].cartID });
+					}
+				}
+				console.log('cart ID: ' + this.state.cartID);
+			});
+
 		this.setState(
 			{
 				pantryKey: key,
 				pantryDic: dic,
-				pantryID: dic[key].dbID, //formerly dbID
+				pantryID: dic[key].pantryID, //formerly dbID
 				pantryName: dic[key].pantryName,
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
@@ -172,8 +183,10 @@ class PantryInventoryScreen extends Component {
 				cartID: this.state.cartID,
 			},
 			() => (
+				console.log('cartID: ' + this.state.cartID),
 				// console.log(this.state),
-				this.getEntry(), console.log('----------------------')
+				this.getEntry(),
+				console.log('----------------------')
 			)
 		);
 		this.state.inventory = [];
@@ -219,12 +232,9 @@ class PantryInventoryScreen extends Component {
 											})
 										}
 									>
-
-										<Text style={styles.bodyText} key= {item.name}>
+										<Text style={styles.bodyText} key={item.name}>
 											{item.name}: {item.quantity}
-											
 										</Text>
-
 									</View>
 								))}
 							</Text>
@@ -266,10 +276,8 @@ class PantryInventoryScreen extends Component {
 									})
 								}
 							>
-
-								<Text style={styles.bodyText} key= {item.name}>
+								<Text style={styles.bodyText} key={item.name}>
 									{item.name}: {item.quantity}
-									
 								</Text>
 
 								<TextInput
@@ -289,9 +297,9 @@ class PantryInventoryScreen extends Component {
 										this.state.itemName = item.name;
 										this.addToCart();
 										this.getCart();
+										Keyboard.dismiss();
 									}}
 								></Button>
-
 							</View>
 						))}
 					</View>
@@ -300,9 +308,7 @@ class PantryInventoryScreen extends Component {
 					<Button
 						title='See Cart'
 						onPress={() => {
-
 							this.toggleModalVisibility();
-
 						}}
 					></Button>
 				</View>

@@ -11,7 +11,7 @@ import {
 	TouchableOpacity,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 
@@ -38,7 +38,7 @@ class PantryDashboardScreen extends Component {
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
-					console.log('Working');
+					// console.log('Working');
 					return response.json();
 				} else {
 					console.log('error in GET. statuscode: ' + response.status);
@@ -48,7 +48,7 @@ class PantryDashboardScreen extends Component {
 				//console.log('reponse :' + JSON.stringify(responseJson));
 
 				this.state.inventoryInfo = responseJson;
-				console.log(JSON.stringify(this.state.inventoryInfo));
+				// console.log(JSON.stringify(this.state.inventoryInfo));
 				this.state.inventoryInfo.inventory.forEach((item) => {
 					this.state.inventory.push(item);
 				});
@@ -109,10 +109,11 @@ class PantryDashboardScreen extends Component {
 				console.log('in second then');
 				// console.log('reponse :' + JSON.stringify(responseJson));
 				console.log(responseJson);
+				this.getEntry();
 				this.setState({
-					// itemID: null,
-					// itemName: null,
-					// itemQuantity: null,
+					itemID: null,
+					itemName: null,
+					itemQuantity: null,
 					modalView: false,
 				});
 				// console.log(this.state);
@@ -147,12 +148,11 @@ class PantryDashboardScreen extends Component {
 				itemQuantity: null,
 			},
 			() => (
-				console.log(this.state),
-				this.getEntry(),
-				console.log('----------------------')
+				// console.log(this.state),
+				this.getEntry(), console.log('----------------------')
 			)
 		);
-		
+
 		this.state.inventory = [];
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
@@ -185,7 +185,11 @@ class PantryDashboardScreen extends Component {
 									size={24}
 									color='black'
 									position='absolute'
-									onPress={() => this.toggleModalVisibility()}
+									onPress={() => {
+										this.toggleModalVisibility();
+										console.log('forceupdate?');
+										this.forceUpdate();
+									}}
 								/>
 							</View>
 							<TextInput
@@ -254,14 +258,7 @@ class PantryDashboardScreen extends Component {
 					<View>
 						<Button
 							title='Edit Inventory'
-							onPress={() => {
-								this.toggleModalVisibility();
-								this.setState({
-									itemID: null,
-									itemName: null,
-									itemQuantity: null,
-								});
-							}}
+							onPress={() => this.toggleModalVisibility()}
 						/>
 					</View>
 					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />

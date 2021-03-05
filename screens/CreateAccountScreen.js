@@ -5,11 +5,11 @@ import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
 import { watchPositionAsync } from 'expo-location';
 
-const SERVER_URL = 'http://10.0.0.85:3000/';
+const SERVER_URL = 'http://192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {
-	createMongoInventory = async () => {
+	createMongoInventory = async (result) => {
 		const pantry = {
 			method: 'POST',
 			headers: {
@@ -30,6 +30,21 @@ class CreateAccountScreen extends Component {
 			)
 			.then((responseJson) => {
 				this.state.pantryID = responseJson._id;
+
+				console.log('pantryID: ' + this.state.pantryID);
+				firebase
+					.database()
+					.ref('/' + this.state.userType + '/' + result.user.uid)
+					.set({
+						email: this.state.emailaddress,
+						first_name: this.state.firstname,
+						last_name: this.state.lastname,
+						pantryName: this.state.pantryName,
+						address: this.state.address,
+						phone: this.state.phone,
+						pantryID: this.state.pantryID,
+						created_at: Date.now(),
+					});
 			})
 			.catch((error) => {
 				console.error(error);
@@ -37,7 +52,7 @@ class CreateAccountScreen extends Component {
 			});
 	};
 
-	createMongoCart = async () => {
+	createMongoCart = async (result) => {
 		const cart = {
 			method: 'POST',
 			headers: {
@@ -61,6 +76,17 @@ class CreateAccountScreen extends Component {
 			)
 			.then((responseJson) => {
 				this.state.cartID = responseJson._id;
+
+				console.log('cartID: ' + this.state.cartID);
+				firebase
+					.database()
+					.ref('/' + this.state.userType + '/' + result.user.uid)
+					.set({
+						email: this.state.emailaddress,
+						first_name: this.state.firstname,
+						last_name: this.state.lastname,
+						cartID: this.state.cartID,
+					});
 			})
 			.catch((error) => {
 				console.error(error);
@@ -77,8 +103,6 @@ class CreateAccountScreen extends Component {
 			)
 			.then(() => {
 				console.log('Signup successful.');
-				this.createMongoInventory();
-				this.createMongoCart();
 				//await is waiting for an asychronous function to complete
 
 				// If we want to implement email verification
@@ -110,30 +134,9 @@ class CreateAccountScreen extends Component {
 						this.state.uid = result.user.uid;
 						console.log('user signed in');
 						if (this.state.userType == 'pantry') {
-							firebase
-								.database()
-								.ref('/' + this.state.userType + '/' + result.user.uid)
-								.set({
-									email: this.state.emailaddress,
-									first_name: this.state.firstname,
-									last_name: this.state.lastname,
-									pantryName: this.state.pantryName,
-									address: this.state.address,
-									phone: this.state.phone,
-									pantryID: this.state.pantryID,
-									created_at: Date.now(),
-								});
+							this.createMongoInventory(result);
 						} else {
-							console.log('cartID: ' + this.state.cartID);
-							firebase
-								.database()
-								.ref('/' + this.state.userType + '/' + result.user.uid)
-								.set({
-									email: this.state.emailaddress,
-									first_name: this.state.firstname,
-									last_name: this.state.lastname,
-									cartID: this.state.cartID,
-								});
+							this.createMongoCart(result);
 						}
 					});
 			})
