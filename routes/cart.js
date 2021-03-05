@@ -60,8 +60,8 @@ router.post('/', async (req, res) => {
 
 // Update one item in inventory
 function updateOneItem(cart, item) {
-	const { itemID, name, quantity } = item;
-	let itemIndex = cart.inventory.findIndex((p) => p.itemID == itemID);
+	const { name, quantity } = item;
+	let itemIndex = cart.inventory.findIndex((p) => (p.name.localeCompare(item.name) == 0 ));
 	if (itemIndex > -1) {
 		//item exists in the inventory, update the quantity
 		let newItem = cart.inventory[itemIndex];
@@ -69,7 +69,7 @@ function updateOneItem(cart, item) {
 		cart.inventory[itemIndex] = newItem;
 	} else {
 		//item does not exists in inventory, add new item
-		cart.inventory.push({ itemID, name, quantity });
+		cart.inventory.push({ name, quantity });
 	}
 }
 

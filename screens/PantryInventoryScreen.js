@@ -26,7 +26,7 @@ class PantryInventoryScreen extends Component {
 		pantryEmail: null,
 		inventoryInfo: {},
 		inventoryString: '',
-		cartID: '603f5f1bbc971affdd03da09', // Hardcoding for now until a cart is created with each user
+		cartID: '603fdb8eb9f09a1485f7b19b', // Hardcoding for now until a cart is created with each user
 		cartItem: null,
 		cartQuantity: null,
 		inventory: [],
@@ -34,6 +34,9 @@ class PantryInventoryScreen extends Component {
 		itemName: null,
 		itemQuantity: null,
 		modalVisible: false,
+		cartInfo: {},
+		cartInventory: [],
+
 	};
 
 	addToCart = async () => {
@@ -110,15 +113,46 @@ class PantryInventoryScreen extends Component {
 				this.state.inventoryInfo = responseJson;
 				console.log(JSON.stringify(this.state.inventoryInfo));
 
-				for (const item in this.state.inventoryInfo.inventory){
+				
+
+				this.state.inventoryInfo.inventory.forEach((item) => {
 					this.state.inventory.push(item);
-				}
+				});
 				
 
 				console.log(
 					'Inventory info: ' +
 						JSON.stringify(this.state.inventoryInfo.inventory)
 				);
+				this.forceUpdate();
+				//console.log(responseJson);
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('^ is the error, in GET');
+			});
+	};
+
+	getCart = async () => {
+		return fetch(SERVER_URL + 'cart/' + this.state.cartID)
+			.then((response) => {
+				if (response.status >= 200 || response.status <= 299) {
+					console.log('Working');
+					return response.json();
+				} else {
+					console.log('error in GET. statuscode: ' + response.status);
+				}
+			})
+			.then((responseJson) => {
+				//console.log('reponse :' + JSON.stringify(responseJson));
+
+				this.state.cartInfo = responseJson;
+
+				this.state.cartInfo.inventory.forEach((item) => {
+					this.state.cartInventory.push(item);
+				});
+				
+
 				this.forceUpdate();
 				//console.log(responseJson);
 			})
@@ -136,6 +170,7 @@ class PantryInventoryScreen extends Component {
 		console.log('key: ' + key);
 
 		const currUser = firebase.auth().currentUser;
+		/*
 		var cartID = null;
 		firebase
 			.database()
@@ -148,17 +183,17 @@ class PantryInventoryScreen extends Component {
 					}
 				}
 			});
-
+*/
 		this.setState(
 			{
 				pantryKey: key,
 				pantryDic: dic,
-				pantryID: dic[key].pantryID, //formerly dbID
+				pantryID: dic[key].dbID, //formerly dbID
 				pantryName: dic[key].pantryName,
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
 				pantryEmail: dic[key].email,
-				cartID: cartID,
+				cartID: this.state.cartID,
 			},
 			() => (
 				console.log(this.state),
@@ -166,8 +201,8 @@ class PantryInventoryScreen extends Component {
 				console.log('----------------------')
 			)
 		);
-		console.log(cartID);
 		this.state.inventory = [];
+		this.state.cartInventory = [];
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
 		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
@@ -196,7 +231,28 @@ class PantryInventoryScreen extends Component {
 									onPress={() => this.toggleModalVisibility()}
 								/>
 							</View>
-							<Text>Cart Display</Text>
+							<Text>
+								Cart Display
+								{this.state.cartInventory.map((item) => (
+									<View
+										style={
+											(styles.boxes,
+											{
+												flex: 1,
+												flexDirection: 'row',
+												justifyContent: 'space-around',
+											})
+										}
+									>
+
+										<Text style={styles.bodyText} key= {item.name}>
+											{item.name}: {item.quantity}
+											
+										</Text>
+
+									</View>
+								))}
+							</Text>
 						</View>
 					</View>
 				</Modal>
@@ -235,7 +291,11 @@ class PantryInventoryScreen extends Component {
 									})
 								}
 							>
-								<Text style={styles.bodyText}>{item.name}</Text>
+
+								<Text style={styles.bodyText} key= {item.name}>
+									{item.name}: {item.quantity}
+									
+								</Text>
 
 								<TextInput
 									style={styles.bodyText}
@@ -244,15 +304,7 @@ class PantryInventoryScreen extends Component {
 									}
 									placeholder={'Item Quantity '}
 									style={styles.input}
-									// keyboardType={'numeric'}
-								/>
-
-								<TextInput
-									style={styles.bodyText}
-									onChangeText={(itemID) => this.setState({ itemID })}
-									placeholder={'Item ID '}
-									style={styles.input}
-									// keyboardType={'numeric'}
+									keyboardType={'numeric'}
 								/>
 
 								<Button
@@ -261,8 +313,10 @@ class PantryInventoryScreen extends Component {
 									onPress={() => {
 										this.state.itemName = item.name;
 										this.addToCart();
+										this.getCart();
 									}}
 								></Button>
+
 							</View>
 						))}
 					</View>
@@ -271,7 +325,9 @@ class PantryInventoryScreen extends Component {
 					<Button
 						title='See Cart'
 						onPress={() => {
+
 							this.toggleModalVisibility();
+
 						}}
 					></Button>
 				</View>
