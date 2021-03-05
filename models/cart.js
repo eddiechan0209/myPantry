@@ -1,49 +1,42 @@
-const mongoose = require('mongoose');
-
 const cartSchema = new mongoose.Schema(
 	{
-		pantries: [
+		name: {
+			type: String,
+			required: true,
+		},
+		address: {
+			type: String,
+			required: true,
+		},
+		pickupTime: {
+			type: String,
+			required: true,
+		},
+		phone: {
+			type: String,
+			required: true,
+		},
+		inventory: [
 			{
+				itemID: {
+					type: Number,
+					required: true,
+				},
 				name: {
 					type: String,
 					required: true,
 				},
-				address: {
-					type: String,
+				quantity: {
+					type: Number,
 					required: true,
 				},
-				pickupTime: {
-					type: String,
-					required: true,
+				modifiedOn: {
+					type: Date,
+					default: Date.now,
 				},
-				phone: {
-					type: String,
-					required: true,
-				},
-				inventory: [
-					{
-						itemID: {
-							type: Number,
-							required: true,
-						},
-						name: {
-							type: String,
-							required: true,
-						},
-						quantity: {
-							type: Number,
-							required: true,
-						},
-						modifiedOn: {
-							type: Date,
-							default: Date.now,
-						},
-					},
-				],
 			},
 		],
 	},
-
 	{ timestamps: true }
 );
 

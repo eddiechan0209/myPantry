@@ -103,7 +103,7 @@ class DashboardScreen extends Component {
 						<Text>Map region doesn't exist.</Text>
 					) : (
 						<MapView
-							style={{ alignSelf: 'stretch', height: 400 }}
+							style={{ alignSelf: 'stretch', height: 200 }}
 							region={this.state.mapRegion}
 							// missing paranthesis and parameter... Is this right?
 							onRegionChange={this.handleMapRegionChange}
@@ -186,8 +186,6 @@ const styles = StyleSheet.create({
 		// backgroundColor: 'green',
 	},
 	list: {
-		justifyContent: 'center',
-		alignItems: 'center',
 		width: '100%',
 		height: '50%',
 		// backgroundColor: 'yellow',
