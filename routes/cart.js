@@ -13,7 +13,6 @@ router.get('/', async (req, res) => {
 	}
 });
 
-
 // Get one
 router.get('/:id', getCart, (req, res) => {
 	console.log('in get one');
@@ -23,12 +22,14 @@ router.get('/:id', getCart, (req, res) => {
 // Create one
 router.post('/', async (req, res) => {
 	console.log('in create one');
+	console.log(JSON.stringify(req.body));
+
 	const cart = new Cart({
 		name: req.body.name,
 		address: req.body.address,
 		inventory: req.body.inventory,
-        pickupTime: req.body.pickupTime, 
-        phone: req.body.phone, 
+		pickupTime: req.body.pickupTime,
+		phone: req.body.phone,
 	});
 	try {
 		const newCart = await cart.save();
@@ -89,10 +90,10 @@ router.patch('/:id', getCart, async (req, res) => {
 			updateOneItem(res.cart, item);
 		});
 	}
-    if (req.body.pickupTime != null) {
+	if (req.body.pickupTime != null) {
 		res.cart.pickupTime = req.body.pickupTime;
 	}
-    if (req.body.phone != null) {
+	if (req.body.phone != null) {
 		res.cart.phone = req.body.phone;
 	}
 	try {
@@ -106,7 +107,7 @@ router.patch('/:id', getCart, async (req, res) => {
 // Delete One
 router.delete('/:id', getCart, async (req, res) => {
 	console.log('in delete one');
-	try { 
+	try {
 		await res.cart.remove();
 		res.json({ message: 'Deleted Cart: ' + req.id });
 	} catch (err) {

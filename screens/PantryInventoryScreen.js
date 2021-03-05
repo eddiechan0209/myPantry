@@ -26,7 +26,7 @@ class PantryInventoryScreen extends Component {
 		pantryEmail: null,
 		inventoryInfo: {},
 		inventoryString: '',
-		cartID: '603f5f1bbc971affdd03da09', // Hardcoding for now until a cart is created with each user
+		cartID: '', // Hardcoding for now until a cart is created with each user
 		cartItem: null,
 		cartQuantity: null,
 		inventory: [],
@@ -59,9 +59,6 @@ class PantryInventoryScreen extends Component {
 			}),
 		};
 
-		console.log(cartEntry);
-		console.log('id: ' + this.state.cartID);
-		console.log('in update entry');
 		// Running update and then updating the values
 
 		// Possible error to check for could be if Pantry is trying to add to existing item
@@ -76,7 +73,7 @@ class PantryInventoryScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				console.log('in second then');
+				// console.log('in second then');
 				// console.log('reponse :' + JSON.stringify(responseJson));
 				console.log(responseJson);
 			})
@@ -93,12 +90,10 @@ class PantryInventoryScreen extends Component {
 	};
 
 	getEntry = async () => {
-		console.log('id: ' + this.state.pantryID);
-		console.log(SERVER_URL + 'pantries/' + this.state.pantryID);
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
-					console.log('Working');
+					// console.log('Working');
 					return response.json();
 				} else {
 					console.log('error in GET. statuscode: ' + response.status);
@@ -108,7 +103,7 @@ class PantryInventoryScreen extends Component {
 				//console.log('reponse :' + JSON.stringify(responseJson));
 
 				this.state.inventoryInfo = responseJson;
-				console.log(JSON.stringify(this.state.inventoryInfo));
+				// console.log(JSON.stringify(this.state.inventoryInfo));
 				this.state.inventoryInfo.inventory.forEach((item) => {
 					this.state.inventory.push(item);
 				});
@@ -130,11 +125,8 @@ class PantryInventoryScreen extends Component {
 		console.log('---componentDidMount()---');
 		const dic = this.props.navigation.getParam('pantryDic', null);
 		const key = this.props.navigation.getParam('pantryKey', null);
-		console.log('dic: ' + dic);
-		console.log('key: ' + key);
 
 		const currUser = firebase.auth().currentUser;
-		var cartID = null;
 		firebase
 			.database()
 			.ref('/consumer')
@@ -142,9 +134,10 @@ class PantryInventoryScreen extends Component {
 			.then((snapshot) => {
 				for (const uid in snapshot.val()) {
 					if (uid === currUser.uid) {
-						cartID = snapshot.val()[uid].cartID;
+						this.setState({ cartID: snapshot.val()[uid].cartID });
 					}
 				}
+				console.log('cart ID: ' + this.state.cartID);
 			});
 
 		this.setState(
@@ -156,15 +149,12 @@ class PantryInventoryScreen extends Component {
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
 				pantryEmail: dic[key].email,
-				cartID: cartID,
 			},
 			() => (
-				console.log(this.state),
-				this.getEntry(),
-				console.log('----------------------')
+				// console.log(this.state),
+				this.getEntry(), console.log('----------------------')
 			)
 		);
-		console.log(cartID);
 		this.state.inventory = [];
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);

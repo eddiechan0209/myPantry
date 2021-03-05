@@ -46,10 +46,10 @@ class CreateAccountScreen extends Component {
 			},
 			body: JSON.stringify({
 				// change model?
-				name: null,
-				address: null,
-				pickupTime: null,
-				phone: null,
+				name: 'dummy',
+				address: 'dummy',
+				pickupTime: 'dummy',
+				phone: 'dummy',
 				inventory: [],
 			}),
 		};
@@ -69,7 +69,6 @@ class CreateAccountScreen extends Component {
 	};
 
 	writeUserData = () => {
-		console.log('above authent ' + this.state.firstname);
 		firebase
 			.auth()
 			.createUserWithEmailAndPassword(
@@ -125,6 +124,7 @@ class CreateAccountScreen extends Component {
 									created_at: Date.now(),
 								});
 						} else {
+							console.log('cartID: ' + this.state.cartID);
 							firebase
 								.database()
 								.ref('/' + this.state.userType + '/' + result.user.uid)
@@ -223,6 +223,7 @@ class CreateAccountScreen extends Component {
 
 	render() {
 		// console.log("render:" + JSON.stringify(this.state));
+		console.log('usertype: ' + this.state.userType);
 		return (
 			<View style={styles.container}>
 				<View style={styles.back}>

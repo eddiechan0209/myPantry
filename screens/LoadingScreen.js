@@ -9,7 +9,7 @@ class LoadingScreen extends Component {
 
 	checkIfLoggedIn = () => {
 		firebase.auth().onAuthStateChanged((user) => {
-			console.log(user);
+			// console.log(user);
 			if (user) {
 				var isPantry = false;
 				firebase
