@@ -13,6 +13,7 @@ import { AntDesign } from '@expo/vector-icons';
 const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 const Cart = require('../models/cart');
+import firebase from 'firebase';
 
 class PantryInventoryScreen extends Component {
 	state = {
@@ -131,6 +132,21 @@ class PantryInventoryScreen extends Component {
 		const key = this.props.navigation.getParam('pantryKey', null);
 		console.log('dic: ' + dic);
 		console.log('key: ' + key);
+
+		const currUser = firebase.auth().currentUser;
+		var cartID = null;
+		firebase
+			.database()
+			.ref('/consumer')
+			.once('value')
+			.then((snapshot) => {
+				for (const uid in snapshot.val()) {
+					if (uid === currUser.uid) {
+						cartID = snapshot.val()[uid].cartID;
+					}
+				}
+			});
+
 		this.setState(
 			{
 				pantryKey: key,
@@ -140,6 +156,7 @@ class PantryInventoryScreen extends Component {
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
 				pantryEmail: dic[key].email,
+				cartID: cartID,
 			},
 			() => (
 				console.log(this.state),
@@ -147,15 +164,13 @@ class PantryInventoryScreen extends Component {
 				console.log('----------------------')
 			)
 		);
-
+		console.log(cartID);
 		this.state.inventory = [];
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
 		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
 		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
 	};
-
-	yes = () => {};
 
 	render() {
 		return (
