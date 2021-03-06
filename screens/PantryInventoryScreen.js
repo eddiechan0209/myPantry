@@ -40,9 +40,9 @@ class PantryInventoryScreen extends Component {
 	};
 
 	addToCart = async () => {
-		console.log(
-			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
-		);
+		// console.log(
+		// 	'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
+		// );
 
 		// Adding the values for the item that the user wants to add
 		const cartEntry = {
@@ -78,7 +78,7 @@ class PantryInventoryScreen extends Component {
 			.then((responseJson) => {
 				// console.log('in second then');
 				// console.log('reponse :' + JSON.stringify(responseJson));
-				console.log(responseJson);
+				// console.log(responseJson);
 			})
 			.catch((error) => {
 				console.error(error);
@@ -111,10 +111,10 @@ class PantryInventoryScreen extends Component {
 					this.state.inventory.push(item);
 				});
 
-				console.log(
-					'Inventory info: ' +
-						JSON.stringify(this.state.inventoryInfo.inventory)
-				);
+				// console.log(
+				// 	'Inventory info: ' +
+				// 		JSON.stringify(this.state.inventoryInfo.inventory)
+				// );
 				this.forceUpdate();
 				//console.log(responseJson);
 			})
@@ -128,14 +128,14 @@ class PantryInventoryScreen extends Component {
 		return fetch(SERVER_URL + 'cart/' + this.state.cartID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
-					console.log('Working');
+					// console.log('Working');
 					return response.json();
 				} else {
-					console.log('error in GET. statuscode: ' + response.status);
+					console.log('error in getCart(). Statuscode: ' + response.status);
 				}
 			})
 			.then((responseJson) => {
-				console.log('reponse :' + JSON.stringify(responseJson));
+				console.log('cartInfo :' + JSON.stringify(responseJson));
 
 				this.state.cartInfo = responseJson;
 
@@ -151,6 +151,8 @@ class PantryInventoryScreen extends Component {
 				console.error('^ is the error, in GET');
 			});
 	};
+
+	placeOrder = async () => {};
 
 	componentDidMount = () => {
 		console.log('---componentDidMount()---');
@@ -238,6 +240,12 @@ class PantryInventoryScreen extends Component {
 									</View>
 								))}
 							</Text>
+							<Button
+								title='Place Order'
+								onPress={() => {
+									this.placeOrder();
+								}}
+							></Button>
 						</View>
 					</View>
 				</Modal>

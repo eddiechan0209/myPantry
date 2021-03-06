@@ -6,8 +6,6 @@ import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import CreateAccountScreen from './screens/CreateAccountScreen';
-import PantryScreen from './screens/PantryScreen';
-import InputPantryInfoScreen from './screens/InputPantryInfoScreen';
 import PantryInventoryScreen from './screens/PantryInventoryScreen';
 import PantryDashboardScreen from './screens/PantryDashboardScreen';
 
@@ -28,8 +26,6 @@ const AppSwitchNavigator = createSwitchNavigator({
 	LoginScreen: LoginScreen,
 	DashboardScreen: DashboardScreen,
 	CreateAccountScreen: CreateAccountScreen,
-	PantryScreen: PantryScreen,
-	InputPantryInfoScreen: InputPantryInfoScreen,
 	PantryInventoryScreen: PantryInventoryScreen,
 	PantryDashboardScreen: PantryDashboardScreen,
 });

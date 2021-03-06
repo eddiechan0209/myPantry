@@ -20,6 +20,10 @@ const cartSchema = new mongoose.Schema(
 		},
 		inventory: [
 			{
+				itemID: {
+					type: Number,
+					required: true,
+				},
 				name: {
 					type: String,
 					required: true,
