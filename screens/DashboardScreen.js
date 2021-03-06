@@ -34,9 +34,7 @@ class DashboardScreen extends Component {
 	};
 
 	handleMapRegionChange = (mapRegion) => {
-		this.setState(
-			{ mapRegion }
-		);
+		this.setState({ mapRegion });
 	};
 
 	async getLocationAsync() {
@@ -53,8 +51,7 @@ class DashboardScreen extends Component {
 		this.setState({ locationResult: JSON.stringify(location) });
 
 		// Center the map on the location we just fetched.
-		this.setState(
-			{
+		this.setState({
 			mapRegion: {
 				latitude: location.coords.latitude,
 				longitude: location.coords.longitude,
@@ -93,7 +90,7 @@ class DashboardScreen extends Component {
 	openPantryPage = (key) => {
 		const id = this.state.pantryDic[key].dbID;
 		console.log('DashboardScreen id: ' + id);
-		this.props.navigation.navigate('PantryInventoryScreen', {
+		this.props.navigation.navigate('PantryDashboardScreen', {
 			pantryKey: key,
 			pantryDic: this.state.pantryDic,
 		});
@@ -101,13 +98,14 @@ class DashboardScreen extends Component {
 
 	render() {
 		if (!this.state.isReady) {
-		return (
-			<AppLoading
-				startAsync={this.seePantries, this.getLocationAsync}
-				onFinish={() => this.state.isReady = true}
-				onError={console.warn}
-			/>
-		); }
+			return (
+				<AppLoading
+					startAsync={(this.seePantries, this.getLocationAsync)}
+					onFinish={() => (this.state.isReady = true)}
+					onError={console.warn}
+				/>
+			);
+		}
 		return (
 			<View style={styles.container}>
 				{/* <Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text> */}
@@ -132,7 +130,7 @@ class DashboardScreen extends Component {
 					<ScrollView>
 						{this.state.pantryKeys.map((key) => {
 							return (
-								<Text key= {key}>
+								<Text key={key}>
 									{'\n\n'}
 									<TouchableOpacity onPress={() => this.openPantryPage(key)}>
 										<Text>{this.state.pantryDic[key].pantryName}</Text>
@@ -146,7 +144,6 @@ class DashboardScreen extends Component {
 				<View style={styles.button}>
 					<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 				</View>
-
 			</View>
 		);
 	}

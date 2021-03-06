@@ -39,26 +39,6 @@ router.post('/', async (req, res) => {
 	}
 });
 
-// // Update One
-// router.patch('/:id', getPantry, async (req, res) => {
-// 	console.log('in update one');
-// 	if (req.body.name != null) {
-// 		res.pantry.name = req.body.name;
-// 	}
-// 	if (req.body.address != null) {
-// 		res.pantry.address = req.body.address;
-// 	}
-// 	if (req.body.inventory != null) {
-// 		res.pantry.inventory = req.body.inventory;
-// 	}
-// 	try {
-// 		const updatedInventory = await res.pantry.save();
-// 		res.json(updatedInventory);
-// 	} catch (err) {
-// 		res.status(400).json({ message: err.message });
-// 	}
-// });
-
 // Update one item in inventory
 function updateOneItem(pantry, item) {
 	const { itemID, name, quantity } = item;

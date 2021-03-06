@@ -51,7 +51,7 @@ DELETE http://localhost:3000/pantries/60137240e0a234b18679dc14
 
 ###
 
-GET http://localhost:3000/cart
+GET http://localhost:3000/cart/604297d0e2f638e6bdc38b60
 
 ###
 
