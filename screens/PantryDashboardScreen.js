@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Button, TextInput, Modal } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
+const SERVER_URL = 'http:/10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 
@@ -18,6 +18,7 @@ class PantryDashboardScreen extends Component {
 		inventoryString: '',
 		modal1Visible: false,
 		modal2Visible: false,
+		modal3Visible: false,
 		itemID: null,
 		itemName: null,
 		itemQuantity: null,
@@ -246,14 +247,19 @@ class PantryDashboardScreen extends Component {
 	// We have two modals:
 	// 1) Pantry view, where they can edit their inventory or sign out
 	// 2) Consumer view, where they can edit their cart and place an order
+	// 3) Cart View, allow users to view their cart
 	toggleModalVisibility = (num) => {
 		if (num == 1) {
 			this.setState((prevState) => ({
 				modal1Visible: !prevState.modal1Visible,
 			}));
-		} else {
+		} else if (num ==2) {
 			this.setState((prevState) => ({
 				modal2Visible: !prevState.modal2Visible,
+			}));
+		} else {
+			this.setState((prevState) => ({
+				modal3Visible: !prevState.modal3Visible,
 			}));
 		}
 	};
@@ -263,12 +269,19 @@ class PantryDashboardScreen extends Component {
 		// user on page is consumer
 		if (this.state.cartID) {
 			return (
-				<View>
+				<View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around',}}>
 					<Button
-						title='Edit Cart'
+						title='Add Item'
 						onPress={() => this.toggleModalVisibility(2)}
 					/>
-					<Button title='Place Order' onPress={() => this.placeOrder()} />
+					<Button
+						title='View Cart'
+						onPress={() => this.toggleModalVisibility(3)}
+					/>
+					<Button 
+						title='Place Order' 
+						onPress={() => this.placeOrder()} 
+					/>
 				</View>
 			);
 		} else {
@@ -491,6 +504,69 @@ class PantryDashboardScreen extends Component {
 					</View>
 				</Modal>
 
+				<Modal
+					animationType='slide'
+					transparent={true}
+					visible={this.state.modal3Visible}
+					onRequestClose={() => {
+						Alert.alert('Modal has been closed.');
+					}}
+				>
+					<View style={styles.centeredView}>
+						<View style={styles.modalView}>
+						<View style={styles.back}>
+								<AntDesign
+									name='left'
+									size={24}
+									color='black'
+									position='absolute'
+									onPress={() => {
+										this.toggleModalVisibility(3);
+									}}
+								/>
+							</View>
+							<View>
+								<Text>Cart: </Text>
+							</View>
+							<View style={styles.boxes}>
+								{this.state.cartInfo === {} ? (
+									<Text>Getting cart...</Text>
+								) : this.state.cartInfo.inventory === (null || undefined) ? (
+									<Text>Cart Empty</Text>
+								) : (
+									Object.values(this.state.cartInfo.inventory).map((json) => {
+										return (
+											<View style={styles.box}>
+												<View style={styles.inner}>
+													<Text key = {json.name}>
+														{'\n'}
+														{json.name}
+														{', '}
+														{json.quantity}
+														{/* Replace X with an image when possible */}
+														<Button 
+															title = "   X  "
+															
+															onPress={() => 
+																{
+																	this.state.itemName = json.name; 
+																	this.state.itemQuantity = -(json.quantity); 
+																	this.state.itemID = json.itemID;
+																	this.updateCart();
+																}
+															}
+														/>
+													</Text>
+												</View>
+											</View>
+										);
+									})
+								)}
+							</View>
+						</View>
+					</View>
+				</Modal>
+
 				<View style={styles.header}>
 					{this.goBack()}
 
@@ -513,7 +589,7 @@ class PantryDashboardScreen extends Component {
 								<View style={styles.box}>
 									<View style={styles.inner}>
 										<View>
-											<Text>id: {json.itemID}</Text>
+											<Text key = {json.itemID}>id: {json.itemID}</Text>
 										</View>
 										<Text>
 											{'\n'}
