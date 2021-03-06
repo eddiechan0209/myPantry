@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, Modal, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
+const SERVER_URL = 'http:/10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 
@@ -402,6 +402,18 @@ class PantryDashboardScreen extends Component {
 		}
 	};
 
+
+	createError( errorString){
+		Alert.alert(
+		"Error",
+		errorString,
+		[
+			{ text: "OK", onPress: () => console.log("OK Pressed") }
+		],
+		);
+	}
+
+
 	render() {
 		return (
 			<View style={styles.container}>
@@ -486,7 +498,21 @@ class PantryDashboardScreen extends Component {
 								style={styles.input}
 							/>
 
-							<Button title='Add' onPress={() => this.updateCart()} />
+							<Button title='Add' onPress=
+							{() => 
+								{
+									var inventoryItem = this.state.inventoryInfo.inventory.find( ({itemID}) => itemID == this.state.itemID );
+									console.log("inventory: "+ this.state.inventoryInfo.inventory);
+									if (inventoryItem == null){
+										this.createError("Invalid ItemID");
+									}else if (this.state.itemQuantity <= 0){
+										this.createError("Invalid Quantity");
+									}else if (inventoryItem.quantity < this.state.itemQuantity){
+										this.createError("Requested Quantity too large");
+									}
+									this.updateCart();
+								}
+							} />
 						</View>
 					</View>
 				</Modal>
