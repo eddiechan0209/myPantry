@@ -15,6 +15,7 @@ import firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
+import FlashMessage from 'react-native-flash-message';
 
 class DashboardScreen extends Component {
 	// MAP CODE REFERENCE: https://snack.expo.io/@professorxii/expo-map-and-location-example
@@ -144,6 +145,7 @@ class DashboardScreen extends Component {
 				<View style={styles.button}>
 					<Button title='Sign out' onPress={() => firebase.auth().signOut()} />
 				</View>
+				<FlashMessage position='top' />
 			</View>
 		);
 	}
