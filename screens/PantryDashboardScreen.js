@@ -9,7 +9,7 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
+const SERVER_URL = 'http:/10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
@@ -550,26 +550,42 @@ class PantryDashboardScreen extends Component {
 							<Button
 								title='Add'
 								onPress={() => {
-									var inventoryItem = this.state.inventoryInfo.inventory.find(
-										({ itemID }) => itemID == this.state.itemID
+									// Looking in the pantry inventory for the given itemID
+                                    var inventoryItem = this.state.inventoryInfo.inventory.find( 
+										({itemID}) => itemID == this.state.itemID 
 									);
-									console.log(
-										'inventory: ' + this.state.inventoryInfo.inventory
-									);
-									if (inventoryItem == null) {
-										this.createError('Invalid ItemID');
-									} else if (this.state.itemQuantity <= 0) {
-										this.createError('Invalid Quantity');
-									} else if (inventoryItem.quantity < this.state.itemQuantity) {
-										this.createError('Requested Quantity too large');
+
+                                    // Creating cart item quantity that will represent the cart quantity
+                                    var cartItemQuantity = this.state.itemQuantity; 
+										
+                                    // Adding to the cart item quantity variable if the item already exists in the cart
+
+									// Getting current cart values so state has them stored
+									this.getCart();
+
+                                    if (this.state.cartInfo.inventory != null && 
+										this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ) != null){
+											// Have to use subtract or else will do string concat if we use +  
+                                        	cartItemQuantity -= -(this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ).quantity);
 									}
-									this.updateCart();
-									Alert.alert(inventoryItem.name + ' added to cart', '', [
-										{
-											text: 'OK',
-											onPress: () => console.log('added to cart Placed'),
-										},
-									]);
+
+                                    if (inventoryItem == null){
+                                        this.createError("Invalid ItemID");
+                                    }else if (this.state.itemQuantity <= 0){
+                                        this.createError("Invalid Quantity");
+                                    }else if (inventoryItem.quantity < cartItemQuantity){
+                                        this.createError("Requested Quantity too large");
+                                    }else {
+                                        // Updating if passed error checks
+                                        this.updateCart();
+										Alert.alert(inventoryItem.name + ' added to cart', '', [
+											{
+												text: 'OK',
+												onPress: () => console.log('added to cart Placed'),
+											},
+										]);
+                                    }
+									
 								}}
 							/>
 						</View>
