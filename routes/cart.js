@@ -49,15 +49,14 @@ function updateOneItem(cart, item) {
 		//item exists in the inventory, update the quantity
 		let newItem = cart.inventory[itemIndex];
 		newItem.quantity += quantity;
-		if (newItem.quantity <= 0){
-			console.log("index: " + itemIndex);
-			if (itemIndex == 0){
-				cart.inventory.splice(itemIndex, itemIndex+1);
-			}else {
+		if (newItem.quantity <= 0) {
+			console.log('index: ' + itemIndex);
+			if (itemIndex == 0) {
+				cart.inventory.splice(itemIndex, itemIndex + 1);
+			} else {
 				cart.inventory.splice(itemIndex, itemIndex);
 			}
-			
-		}else {
+		} else {
 			cart.inventory[itemIndex] = newItem;
 		}
 	} else {
@@ -103,6 +102,7 @@ router.patch('/:id/clear', getCart, async (req, res) => {
 	if (req.body.inventory != null) {
 		res.cart.inventory = [];
 	}
+	console.log(JSON.stringify(res.cart.inventory));
 	try {
 		const updatedInventory = await res.cart.save();
 		res.json(updatedInventory);

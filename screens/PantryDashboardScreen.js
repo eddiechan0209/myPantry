@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, Modal, Alert } from 'react-native';
+import {
+	View,
+	Text,
+	StyleSheet,
+	Button,
+	TextInput,
+	Modal,
+	Alert,
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
+import showMessage from 'react-native-flash-message';
 
 class PantryDashboardScreen extends Component {
 	state = {
@@ -253,7 +262,7 @@ class PantryDashboardScreen extends Component {
 			this.setState((prevState) => ({
 				modal1Visible: !prevState.modal1Visible,
 			}));
-		} else if (num ==2) {
+		} else if (num == 2) {
 			this.setState((prevState) => ({
 				modal2Visible: !prevState.modal2Visible,
 			}));
@@ -269,7 +278,13 @@ class PantryDashboardScreen extends Component {
 		// user on page is consumer
 		if (this.state.cartID) {
 			return (
-				<View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around',}}>
+				<View
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						justifyContent: 'space-around',
+					}}
+				>
 					<Button
 						title='Add Item'
 						onPress={() => this.toggleModalVisibility(2)}
@@ -278,9 +293,14 @@ class PantryDashboardScreen extends Component {
 						title='View Cart'
 						onPress={() => this.toggleModalVisibility(3)}
 					/>
-					<Button 
-						title='Place Order' 
-						onPress={() => this.placeOrder()} 
+					<Button
+						title='Place Order'
+						onPress={() => {
+							this.placeOrder();
+							Alert.alert('Order Placed', '', [
+								{ text: 'OK', onPress: () => console.log('Order Placed') },
+							]);
+						}}
 					/>
 				</View>
 			);
@@ -347,7 +367,6 @@ class PantryDashboardScreen extends Component {
 			})
 			.then((responseJson) => {
 				// console.log('reponseJson :' + JSON.stringify(responseJson));
-				console.log('why not getting getCart');
 				this.getEntry();
 				this.getCart();
 				this.clearCart();
@@ -357,6 +376,7 @@ class PantryDashboardScreen extends Component {
 					itemQuantity: null,
 				});
 				console.log('why not getting getCart');
+				this.forceUpdate();
 			})
 			.catch((error) => {
 				console.error(error);
@@ -377,21 +397,23 @@ class PantryDashboardScreen extends Component {
 			}),
 		};
 
-		return fetch(
-			SERVER_URL + 'cart/' + this.state.cartID + '/clear',
-			patchEntry
-		)
-			.then((response) => {
-				if (response.status >= 200 && response.status <= 299) {
-					return response.json();
-				} else {
-					console.log('error in updateCart(). statuscode: ' + response.status);
-				}
-			})
-			.catch((error) => {
-				console.error(error);
-				console.error('^ is the error, in clearCart()');
-			});
+		return (
+			fetch(SERVER_URL + 'cart/' + this.state.cartID + '/clear', patchEntry)
+				// .then((response) => {
+				// 	if (response.status >= 200 && response.status <= 299) {
+				// 		return response.json();
+				// 	} else {
+				// 		console.log('error in updateCart(). statuscode: ' + response.status);
+				// 	}
+				// })
+				.then((something) => {
+					this.updateCart();
+				})
+				.catch((error) => {
+					console.error(error);
+					console.error('^ is the error, in clearCart()');
+				})
+		);
 	};
 
 	// Shows back button for consumers (pantries don't need this)
@@ -405,27 +427,37 @@ class PantryDashboardScreen extends Component {
 						size={24}
 						color='black'
 						position='absolute'
-						onPress={() => {
-							this.clearCart();
-							this.props.navigation.navigate('DashboardScreen');
-						}}
+						onPress={() => this.backAlert()}
 					/>
 				</View>
 			);
 		}
 	};
 
+	backAlert = () => {
+		{
+			Alert.alert(
+				'Warning',
+				'Navigating to the Dashboard will clear your cart',
+				[
+					{
+						text: 'OK',
+						onPress: () => {
+							this.clearCart();
+							this.props.navigation.navigate('DashboardScreen');
+						},
+					},
+					{ text: 'Cancel', onPress: () => console.log('CANCEL Pressed') },
+				]
+			);
+		}
+	};
 
-	createError( errorString){
-		Alert.alert(
-		"Error",
-		errorString,
-		[
-			{ text: "OK", onPress: () => console.log("OK Pressed") }
-		],
-		);
+	createError(errorString) {
+		Alert.alert('Error', errorString, [
+			{ text: 'OK', onPress: () => console.log('OK Pressed') },
+		]);
 	}
-
 
 	render() {
 		return (
@@ -511,21 +543,35 @@ class PantryDashboardScreen extends Component {
 								style={styles.input}
 							/>
 
-							<Button title='Add' onPress=
-							{() => 
-								{
-									var inventoryItem = this.state.inventoryInfo.inventory.find( ({itemID}) => itemID == this.state.itemID );
-									console.log("inventory: "+ this.state.inventoryInfo.inventory);
-									if (inventoryItem == null){
-										this.createError("Invalid ItemID");
-									}else if (this.state.itemQuantity <= 0){
-										this.createError("Invalid Quantity");
-									}else if (inventoryItem.quantity < this.state.itemQuantity){
-										this.createError("Requested Quantity too large");
+							{/* <View>
+								<Text>Added {this.state.itemName} to Cart</Text>
+							</View> */}
+
+							<Button
+								title='Add'
+								onPress={() => {
+									var inventoryItem = this.state.inventoryInfo.inventory.find(
+										({ itemID }) => itemID == this.state.itemID
+									);
+									console.log(
+										'inventory: ' + this.state.inventoryInfo.inventory
+									);
+									if (inventoryItem == null) {
+										this.createError('Invalid ItemID');
+									} else if (this.state.itemQuantity <= 0) {
+										this.createError('Invalid Quantity');
+									} else if (inventoryItem.quantity < this.state.itemQuantity) {
+										this.createError('Requested Quantity too large');
 									}
 									this.updateCart();
-								}
-							} />
+									Alert.alert(inventoryItem.name + ' added to cart', '', [
+										{
+											text: 'OK',
+											onPress: () => console.log('added to cart Placed'),
+										},
+									]);
+								}}
+							/>
 						</View>
 					</View>
 				</Modal>
@@ -540,7 +586,7 @@ class PantryDashboardScreen extends Component {
 				>
 					<View style={styles.centeredView}>
 						<View style={styles.modalView}>
-						<View style={styles.back}>
+							<View style={styles.back}>
 								<AntDesign
 									name='left'
 									size={24}
@@ -564,23 +610,20 @@ class PantryDashboardScreen extends Component {
 										return (
 											<View style={styles.box}>
 												<View style={styles.inner}>
-													<Text key = {json.name}>
+													<Text key={json.name}>
 														{'\n'}
 														{json.name}
 														{', '}
 														{json.quantity}
 														{/* Replace X with an image when possible */}
-														<Button 
-															title = "   X  "
-															
-															onPress={() => 
-																{
-																	this.state.itemName = json.name; 
-																	this.state.itemQuantity = -(json.quantity); 
-																	this.state.itemID = json.itemID;
-																	this.updateCart();
-																}
-															}
+														<Button
+															title='   X  '
+															onPress={() => {
+																this.state.itemName = json.name;
+																this.state.itemQuantity = -json.quantity;
+																this.state.itemID = json.itemID;
+																this.updateCart();
+															}}
 														/>
 													</Text>
 												</View>
@@ -599,9 +642,6 @@ class PantryDashboardScreen extends Component {
 					<View style={styles.title}>
 						<Text style={styles.titleText}>{this.state.pantryName}</Text>
 					</View>
-					<View style={styles.info}>
-						<Button title='Info' onPress={() => {}}></Button>
-					</View>
 				</View>
 
 				<View style={styles.boxes}>
@@ -615,7 +655,7 @@ class PantryDashboardScreen extends Component {
 								<View style={styles.box}>
 									<View style={styles.inner}>
 										<View>
-											<Text key = {json.itemID}>id: {json.itemID}</Text>
+											<Text key={json.itemID}>id: {json.itemID}</Text>
 										</View>
 										<Text>
 											{'\n'}
