@@ -70,6 +70,12 @@ router.patch('/:id', getPantry, async (req, res) => {
 			updateOneItem(res.pantry, item);
 		});
 	}
+	if (req.body.orders != null) {
+		req.body.orders.forEach((order) => {
+			console.log(order);
+			res.body.orders.push(order);
+		});
+	}
 	try {
 		const updatedInventory = await res.pantry.save();
 		res.json(updatedInventory);
