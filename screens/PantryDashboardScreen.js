@@ -333,6 +333,8 @@ class PantryDashboardScreen extends Component {
 							this.getEntry()
 							this.props.navigation.navigate('PantryOrderScreen', {
 								pantryInfo: this.state.pantryInfo,
+								pantryDic: this.state.pantryDic,
+								pantryKey: this.state.pantryKey,
 							});
 							this.toggleModalVisibility(4);
 						}}
