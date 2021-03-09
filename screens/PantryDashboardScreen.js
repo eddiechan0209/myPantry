@@ -9,7 +9,7 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
+const SERVER_URL = 'http:/10.0.0.85:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
@@ -226,7 +226,10 @@ class PantryDashboardScreen extends Component {
 			.then((snapshot) => {
 				for (const uid in snapshot.val()) {
 					if (uid === currUser.uid) {
-						this.setState({ cartID: snapshot.val()[uid].cartID });
+						this.setState({ 
+							cartID: snapshot.val()[uid].cartID, 
+							userName: snapshot.val()[uid].first_name + " " + snapshot.val()[uid].last_name,
+						});
 					}
 				}
 				console.log('cart ID: ' + this.state.cartID);
@@ -241,7 +244,6 @@ class PantryDashboardScreen extends Component {
 				pantryAddress: dic[key].address,
 				pantryNumber: dic[key].phone,
 				pantryEmail: dic[key].email,
-				userName: currUser.displayName,
 			},
 			() => (
 				// console.log(this.state),
@@ -314,7 +316,13 @@ class PantryDashboardScreen extends Component {
 			);
 		} else {
 			return (
-				<View>
+				<View
+				style={{
+					flex: 1,
+					flexDirection: 'row',
+					justifyContent: 'space-around',
+				}}
+				>
 					<Button
 						title='Edit Inventory'
 						onPress={() => this.toggleModalVisibility(1)}
@@ -349,20 +357,22 @@ class PantryDashboardScreen extends Component {
 				if (item.itemID == item2.itemID) {
 					quantity = item2.quantity - item.quantity;
 					console.log('quantity: ' + quantity);
+
+					inventoryUpdate.push({
+						itemID: item2.itemID,
+						name: item2.itemName,
+						quantity: quantity,
+					});
+		
+					orderUpdate.push({
+						itemID: item2.itemID,
+						name: item2.name,
+						quantity: item.quantity,
+					});
 				}
 			});
 
-			inventoryUpdate.push({
-				itemID: item.itemID,
-				name: item.itemName,
-				quantity: quantity,
-			});
-
-			orderUpdate.push({
-				itemID: item.itemID,
-				name: 'please',
-				quantity: item.quantity,
-			});
+			
 		});
 
 		console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
