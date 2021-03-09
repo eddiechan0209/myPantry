@@ -5,7 +5,7 @@ import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
 import { watchPositionAsync } from 'expo-location';
 
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {

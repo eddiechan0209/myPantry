@@ -9,7 +9,7 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
@@ -35,7 +35,7 @@ class PantryDashboardScreen extends Component {
 		cartID: '',
 		cartInfo: {},
 		cartInventory: [],
-		userName: null, 
+		userName: null,
 	};
 
 	// updates state's pantryInfo and inventory
@@ -52,7 +52,7 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				//console.log('reponse :' + JSON.stringify(responseJson));
+				console.log('reponse :' + JSON.stringify(responseJson));
 
 				this.state.pantryInfo = responseJson;
 				// console.log(JSON.stringify(this.state.pantryInfo));
@@ -101,8 +101,6 @@ class PantryDashboardScreen extends Component {
 				console.error('^ is the error, in GET');
 			});
 	};
-
-
 
 	// update's pantry's inventory
 	updateInventory = async () => {
@@ -323,12 +321,11 @@ class PantryDashboardScreen extends Component {
 					/>
 					<Button
 						title='View Orders'
-						onPress={() => 
-							{
-								this.getEntry();
-								this.toggleModalVisibility(4);
-							}
-						}
+						onPress={() => {
+							this.getEntry();
+							this.toggleModalVisibility(4);
+							console.log();
+						}}
 					/>
 					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
 				</View>
@@ -340,6 +337,7 @@ class PantryDashboardScreen extends Component {
 	// consumer's cart becomes empty after order
 	placeOrder = async () => {
 		const inventoryUpdate = [];
+		const orderUpdate = [];
 
 		this.state.cartInfo.inventory.forEach((item) => {
 			let quantity = 0;
@@ -359,6 +357,12 @@ class PantryDashboardScreen extends Component {
 				name: item.itemName,
 				quantity: quantity,
 			});
+
+			orderUpdate.push({
+				itemID: item.itemID,
+				name: 'please',
+				quantity: item.quantity,
+			});
 		});
 
 		console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
@@ -372,9 +376,9 @@ class PantryDashboardScreen extends Component {
 			body: JSON.stringify({
 				inventory: inventoryUpdate,
 				order: {
-					name: this.state.userName,
-					orderInventory: inventoryUpdate,
-				}
+					name: 'Name',
+					orderInventory: orderUpdate,
+				},
 			}),
 		};
 
@@ -574,41 +578,46 @@ class PantryDashboardScreen extends Component {
 								title='Add'
 								onPress={() => {
 									// Looking in the pantry inventory for the given itemID
-                                    var inventoryItem = this.state.pantryInfo.inventory.find( 
-										({itemID}) => itemID == this.state.itemID 
+									var inventoryItem = this.state.pantryInfo.inventory.find(
+										({ itemID }) => itemID == this.state.itemID
 									);
 
-                                    // Creating cart item quantity that will represent the cart quantity
-                                    var cartItemQuantity = this.state.itemQuantity; 
-										
-                                    // Adding to the cart item quantity variable if the item already exists in the cart
+									// Creating cart item quantity that will represent the cart quantity
+									var cartItemQuantity = this.state.itemQuantity;
+
+									// Adding to the cart item quantity variable if the item already exists in the cart
 
 									// Getting current cart values so state has them store
 									this.getCart();
 
-                                    if (this.state.cartInfo.inventory != null && 
-										this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ) != null){
-											// Have to use subtract or else will do string concat if we use +  
-                                        	cartItemQuantity -= -(this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ).quantity);
+									if (
+										this.state.cartInfo.inventory != null &&
+										this.state.cartInfo.inventory.find(
+											({ itemID }) => itemID == this.state.itemID
+										) != null
+									) {
+										// Have to use subtract or else will do string concat if we use +
+										cartItemQuantity -= -this.state.cartInfo.inventory.find(
+											({ itemID }) => itemID == this.state.itemID
+										).quantity;
 									}
 
-                                    if (inventoryItem == null){
-                                        this.createError("Invalid ItemID");
-                                    }else if (this.state.itemQuantity <= 0){
-                                        this.createError("Invalid Quantity");
-                                    }else if (inventoryItem.quantity < cartItemQuantity){
-                                        this.createError("Requested Quantity too large");
-                                    }else {
-                                        // Updating if passed error checks
-                                        this.updateCart();
+									if (inventoryItem == null) {
+										this.createError('Invalid ItemID');
+									} else if (this.state.itemQuantity <= 0) {
+										this.createError('Invalid Quantity');
+									} else if (inventoryItem.quantity < cartItemQuantity) {
+										this.createError('Requested Quantity too large');
+									} else {
+										// Updating if passed error checks
+										this.updateCart();
 										Alert.alert(inventoryItem.name + ' added to cart', '', [
 											{
 												text: 'OK',
 												onPress: () => console.log('added to cart Placed'),
 											},
 										]);
-                                    }
-									
+									}
 								}}
 							/>
 						</View>
@@ -675,11 +684,10 @@ class PantryDashboardScreen extends Component {
 					</View>
 				</Modal>
 
-				
 				<Modal
 					animationType='slide'
 					transparent={true}
-					visible={this.state.modal3Visible}
+					visible={this.state.modal4Visible}
 					onRequestClose={() => {
 						Alert.alert('Modal has been closed.');
 					}}
@@ -701,19 +709,16 @@ class PantryDashboardScreen extends Component {
 								<Text>Orders: </Text>
 							</View>
 							<View style={styles.boxes}>
-								{this.state.pantryInfo ===  {} ? (
+								{this.state.pantryInfo === {} ? (
 									<Text>Getting Orders...</Text>
-								) : this.state.pantryInfo.orderInventory === (null || undefined) ? (
+								) : this.state.pantryInfo.orders === (null || undefined) ? (
 									<Text>No Orders</Text>
 								) : (
 									Object.values(this.state.pantryInfo.orders).map((order) => {
 										return (
 											<View>
-												<Text>
-													{order.name};
-												</Text>
-												{
-												Object.values(order.orderInventory).map((json) => {
+												<Text>{order.name};</Text>
+												{Object.values(order.orderInventory).map((json) => {
 													return (
 														<View style={styles.box}>
 															<View style={styles.inner}>
@@ -728,7 +733,7 @@ class PantryDashboardScreen extends Component {
 														</View>
 													);
 												})}
-											</View>										
+											</View>
 										);
 									})
 								)}
