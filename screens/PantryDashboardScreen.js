@@ -330,9 +330,11 @@ class PantryDashboardScreen extends Component {
 					<Button
 						title='View Orders'
 						onPress={() => {
-							this.getEntry();
+							this.getEntry()
+							this.props.navigation.navigate('PantryOrderScreen', {
+								pantryInfo: this.state.pantryInfo,
+							});
 							this.toggleModalVisibility(4);
-							console.log();
 						}}
 					/>
 					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
@@ -399,7 +401,7 @@ class PantryDashboardScreen extends Component {
 				if (response.status >= 200 && response.status <= 299) {
 					return response.json();
 				} else {
-					console.log('error in placeOrder(). statuscode: ' + response.status);
+					console.log('error in placeOrder(). statusCode: ' + response.status);
 				}
 			})
 			.then((responseJson) => {
