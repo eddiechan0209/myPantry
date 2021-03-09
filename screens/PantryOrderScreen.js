@@ -6,7 +6,7 @@ class PantryOrderScreen extends Component {
 
    
 
-    state = {pantryInfo: null}
+    state = {pantryInfo: {}}
 
     componentDidMount = () => {
 		console.log('---componentDidMount()---');
