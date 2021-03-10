@@ -50,7 +50,7 @@ class PantryOrderScreen extends Component {
 								<View>
 									<View style={styles.box}>
 										<View style={styles.inner}>
-											<Text>{order.name}</Text>
+											<Text style={fontWeight: 'bold'}>{order.name}:</Text>
 											{Object.values(order.orderInventory).map((json) => {
 												return (
 													<Text key={json.name}>
