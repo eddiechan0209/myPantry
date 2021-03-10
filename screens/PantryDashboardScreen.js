@@ -9,13 +9,13 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
 
 class PantryDashboardScreen extends Component {
-	_isMounted = false; 
+	_isMounted = false;
 	state = {
 		pantryKey: null,
 		pantryDic: null,
@@ -214,8 +214,6 @@ class PantryDashboardScreen extends Component {
 			});
 	};
 
-
-	
 	componentDidMount = () => {
 		this._isMounted = true;
 
@@ -231,15 +229,18 @@ class PantryDashboardScreen extends Component {
 			.then((snapshot) => {
 				for (const uid in snapshot.val()) {
 					if (uid === currUser.uid) {
-						this.setState({ 
-							cartID: snapshot.val()[uid].cartID, 
-							userName: snapshot.val()[uid].first_name + " " + snapshot.val()[uid].last_name,
+						this.setState({
+							cartID: snapshot.val()[uid].cartID,
+							userName:
+								snapshot.val()[uid].first_name +
+								' ' +
+								snapshot.val()[uid].last_name,
 						});
 					}
 				}
 				console.log('cart ID: ' + this.state.cartID);
 			});
-		if(this._isMounted){
+		if (this._isMounted) {
 			this.setState(
 				{
 					pantryKey: key,
@@ -255,7 +256,6 @@ class PantryDashboardScreen extends Component {
 					this.getEntry(), console.log('----------------------')
 				)
 			);
-		
 
 			this.state.inventory = [];
 		}
@@ -318,10 +318,14 @@ class PantryDashboardScreen extends Component {
 						title='Place Order'
 						onPress={() => {
 							this.getCart();
-							if (this.state.cartInfo.inventory == null || 
-								this.state.cartInfo.inventory.length == 0){
-									this.createError("Cart Empty: Add Items before placing orders. ");
-							}else {
+							if (
+								this.state.cartInfo.inventory == null ||
+								this.state.cartInfo.inventory.length == 0
+							) {
+								this.createError(
+									'Cart Empty: Add Items before placing orders. '
+								);
+							} else {
 								this.placeOrder();
 								Alert.alert('Order Placed', '', [
 									{ text: 'OK', onPress: () => console.log('Order Placed') },
@@ -334,11 +338,11 @@ class PantryDashboardScreen extends Component {
 		} else {
 			return (
 				<View
-				style={{
-					flex: 1,
-					flexDirection: 'row',
-					justifyContent: 'space-around',
-				}}
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						justifyContent: 'space-around',
+					}}
 				>
 					<Button
 						title='Edit Inventory'
@@ -347,7 +351,7 @@ class PantryDashboardScreen extends Component {
 					<Button
 						title='View Orders'
 						onPress={() => {
-							this.getEntry()
+							this.getEntry();
 							this.props.navigation.navigate('PantryOrderScreen', {
 								pantryInfo: this.state.pantryInfo,
 								pantryDic: this.state.pantryDic,
@@ -384,7 +388,7 @@ class PantryDashboardScreen extends Component {
 						name: item2.itemName,
 						quantity: quantity,
 					});
-		
+
 					orderUpdate.push({
 						itemID: item2.itemID,
 						name: item2.name,
@@ -392,8 +396,6 @@ class PantryDashboardScreen extends Component {
 					});
 				}
 			});
-
-			
 		});
 
 		console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
@@ -407,7 +409,7 @@ class PantryDashboardScreen extends Component {
 			body: JSON.stringify({
 				inventory: inventoryUpdate,
 				order: {
-					name: 'Name',
+					name: this.state.userName,
 					orderInventory: orderUpdate,
 				},
 			}),
