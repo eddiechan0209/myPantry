@@ -30,6 +30,34 @@ const pantrySchema = new mongoose.Schema(
 				},
 			},
 		],
+		orders: [
+			{
+				name: {
+					type: String, 
+					required: true,
+				},
+				orderInventory: [
+					{
+						itemID: {
+							type: Number,
+							required: true,
+						},
+						name: {
+							type: String,
+							required: true,
+						},
+						quantity: {
+							type: Number,
+							required: true,
+						},
+						modifiedOn: {
+							type: Date,
+							default: Date.now,
+						},
+					},
+				],
+			}
+		]
 	},
 	{ timestamps: true }
 );

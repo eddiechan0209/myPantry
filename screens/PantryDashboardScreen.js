@@ -9,12 +9,13 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
 
 class PantryDashboardScreen extends Component {
+	_isMounted = false;
 	state = {
 		pantryKey: null,
 		pantryDic: null,
@@ -23,20 +24,22 @@ class PantryDashboardScreen extends Component {
 		pantryAddress: null,
 		pantryNumber: null,
 		pantryEmail: null,
-		inventoryInfo: {},
+		pantryInfo: {},
 		inventoryString: '',
 		modal1Visible: false,
 		modal2Visible: false,
 		modal3Visible: false,
+		modal4Visible: false,
 		itemID: null,
 		itemName: null,
 		itemQuantity: null,
 		cartID: '',
 		cartInfo: {},
 		cartInventory: [],
+		userName: null,
 	};
 
-	// updates state's inventoryInfo and inventory
+	// updates state's pantryInfo and inventory
 	getEntry = async () => {
 		console.log('id: ' + this.state.pantryID);
 		console.log(SERVER_URL + 'pantries/' + this.state.pantryID);
@@ -50,17 +53,17 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				//console.log('reponse :' + JSON.stringify(responseJson));
+				console.log('reponse :' + JSON.stringify(responseJson));
 
-				this.state.inventoryInfo = responseJson;
-				// console.log(JSON.stringify(this.state.inventoryInfo));
-				this.state.inventoryInfo.inventory.forEach((item) => {
+				this.state.pantryInfo = responseJson;
+				// console.log(JSON.stringify(this.state.pantryInfo));
+				this.state.pantryInfo.inventory.forEach((item) => {
 					this.state.inventory.push(item);
 				});
 
 				// console.log(
 				// 	'Inventory info: ' +
-				// 		JSON.stringify(this.state.inventoryInfo.inventory)
+				// 		JSON.stringify(this.state.pantryInfo.inventory)
 				// );
 				this.forceUpdate();
 				//console.log(responseJson);
@@ -162,7 +165,7 @@ class PantryDashboardScreen extends Component {
 	updateCart = async () => {
 		let name = 'Unknown';
 
-		this.state.inventoryInfo.inventory.forEach((item) => {
+		this.state.pantryInfo.inventory.forEach((item) => {
 			if (item.itemID == this.state.itemID) {
 				name = item.name;
 			}
@@ -212,6 +215,8 @@ class PantryDashboardScreen extends Component {
 	};
 
 	componentDidMount = () => {
+		this._isMounted = true;
+
 		console.log('---componentDidMount()---');
 		const dic = this.props.navigation.getParam('pantryDic', null);
 		const key = this.props.navigation.getParam('pantryKey', null);
@@ -224,39 +229,51 @@ class PantryDashboardScreen extends Component {
 			.then((snapshot) => {
 				for (const uid in snapshot.val()) {
 					if (uid === currUser.uid) {
-						this.setState({ cartID: snapshot.val()[uid].cartID });
+						this.setState({
+							cartID: snapshot.val()[uid].cartID,
+							userName:
+								snapshot.val()[uid].first_name +
+								' ' +
+								snapshot.val()[uid].last_name,
+						});
 					}
 				}
 				console.log('cart ID: ' + this.state.cartID);
 			});
+		if (this._isMounted) {
+			this.setState(
+				{
+					pantryKey: key,
+					pantryDic: dic,
+					pantryID: dic[key].pantryID, //formerly dbID
+					pantryName: dic[key].pantryName,
+					pantryAddress: dic[key].address,
+					pantryNumber: dic[key].phone,
+					pantryEmail: dic[key].email,
+				},
+				() => (
+					// console.log(this.state),
+					this.getEntry(), console.log('----------------------')
+				)
+			);
 
-		this.setState(
-			{
-				pantryKey: key,
-				pantryDic: dic,
-				pantryID: dic[key].pantryID, //formerly dbID
-				pantryName: dic[key].pantryName,
-				pantryAddress: dic[key].address,
-				pantryNumber: dic[key].phone,
-				pantryEmail: dic[key].email,
-			},
-			() => (
-				// console.log(this.state),
-				this.getEntry(), console.log('----------------------')
-			)
-		);
-
-		this.state.inventory = [];
+			this.state.inventory = [];
+		}
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
 		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
 		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
 	};
 
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
+
 	// We have two modals:
 	// 1) Pantry view, where they can edit their inventory or sign out
 	// 2) Consumer view, where they can edit their cart and place an order
 	// 3) Cart View, allow users to view their cart
+	// 4) Order View, allow pantries to view orders
 	toggleModalVisibility = (num) => {
 		if (num == 1) {
 			this.setState((prevState) => ({
@@ -266,9 +283,13 @@ class PantryDashboardScreen extends Component {
 			this.setState((prevState) => ({
 				modal2Visible: !prevState.modal2Visible,
 			}));
-		} else {
+		} else if (num == 3) {
 			this.setState((prevState) => ({
 				modal3Visible: !prevState.modal3Visible,
+			}));
+		} else {
+			this.setState((prevState) => ({
+				modal4Visible: !prevState.modal4Visible,
 			}));
 		}
 	};
@@ -296,20 +317,48 @@ class PantryDashboardScreen extends Component {
 					<Button
 						title='Place Order'
 						onPress={() => {
-							this.placeOrder();
-							Alert.alert('Order Placed', '', [
-								{ text: 'OK', onPress: () => console.log('Order Placed') },
-							]);
+							this.getCart();
+							if (
+								this.state.cartInfo.inventory == null ||
+								this.state.cartInfo.inventory.length == 0
+							) {
+								this.createError(
+									'Cart Empty: Add Items before placing orders. '
+								);
+							} else {
+								this.placeOrder();
+								Alert.alert('Order Placed', '', [
+									{ text: 'OK', onPress: () => console.log('Order Placed') },
+								]);
+							}
 						}}
 					/>
 				</View>
 			);
 		} else {
 			return (
-				<View>
+				<View
+					style={{
+						flex: 1,
+						flexDirection: 'row',
+						justifyContent: 'space-around',
+					}}
+				>
 					<Button
 						title='Edit Inventory'
 						onPress={() => this.toggleModalVisibility(1)}
+					/>
+					<Button
+						title='View Orders'
+						onPress={() => {
+							this.getEntry();
+							this.props.navigation.navigate('PantryOrderScreen', {
+								pantryInfo: this.state.pantryInfo,
+								pantryDic: this.state.pantryDic,
+								pantryKey: this.state.pantryKey,
+							});
+							this.toggleModalVisibility(4);
+						}}
 					/>
 					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
 				</View>
@@ -321,24 +370,31 @@ class PantryDashboardScreen extends Component {
 	// consumer's cart becomes empty after order
 	placeOrder = async () => {
 		const inventoryUpdate = [];
+		const orderUpdate = [];
 
 		this.state.cartInfo.inventory.forEach((item) => {
 			let quantity = 0;
 
 			// We have the cart item quantity, but need the pantry item quantity
 			// We can improve this later by adjusting our model
-			this.state.inventoryInfo.inventory.forEach((item2) => {
+			this.state.pantryInfo.inventory.forEach((item2) => {
 				console.log('1: ' + item.itemID + ' 2: ' + item2.itemID);
 				if (item.itemID == item2.itemID) {
 					quantity = item2.quantity - item.quantity;
 					console.log('quantity: ' + quantity);
-				}
-			});
 
-			inventoryUpdate.push({
-				itemID: item.itemID,
-				name: item.itemName,
-				quantity: quantity,
+					inventoryUpdate.push({
+						itemID: item2.itemID,
+						name: item2.itemName,
+						quantity: quantity,
+					});
+
+					orderUpdate.push({
+						itemID: item2.itemID,
+						name: item2.name,
+						quantity: item.quantity,
+					});
+				}
 			});
 		});
 
@@ -352,6 +408,10 @@ class PantryDashboardScreen extends Component {
 			},
 			body: JSON.stringify({
 				inventory: inventoryUpdate,
+				order: {
+					name: this.state.userName,
+					orderInventory: orderUpdate,
+				},
 			}),
 		};
 
@@ -362,7 +422,7 @@ class PantryDashboardScreen extends Component {
 				if (response.status >= 200 && response.status <= 299) {
 					return response.json();
 				} else {
-					console.log('error in placeOrder(). statuscode: ' + response.status);
+					console.log('error in placeOrder(). statusCode: ' + response.status);
 				}
 			})
 			.then((responseJson) => {
@@ -551,41 +611,46 @@ class PantryDashboardScreen extends Component {
 								title='Add'
 								onPress={() => {
 									// Looking in the pantry inventory for the given itemID
-                                    var inventoryItem = this.state.inventoryInfo.inventory.find( 
-										({itemID}) => itemID == this.state.itemID 
+									var inventoryItem = this.state.pantryInfo.inventory.find(
+										({ itemID }) => itemID == this.state.itemID
 									);
 
-                                    // Creating cart item quantity that will represent the cart quantity
-                                    var cartItemQuantity = this.state.itemQuantity; 
-										
-                                    // Adding to the cart item quantity variable if the item already exists in the cart
+									// Creating cart item quantity that will represent the cart quantity
+									var cartItemQuantity = this.state.itemQuantity;
 
-									// Getting current cart values so state has them stored
+									// Adding to the cart item quantity variable if the item already exists in the cart
+
+									// Getting current cart values so state has them store
 									this.getCart();
 
-                                    if (this.state.cartInfo.inventory != null && 
-										this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ) != null){
-											// Have to use subtract or else will do string concat if we use +  
-                                        	cartItemQuantity -= -(this.state.cartInfo.inventory.find( ({ itemID }) => itemID == this.state.itemID ).quantity);
+									if (
+										this.state.cartInfo.inventory != null &&
+										this.state.cartInfo.inventory.find(
+											({ itemID }) => itemID == this.state.itemID
+										) != null
+									) {
+										// Have to use subtract or else will do string concat if we use +
+										cartItemQuantity -= -this.state.cartInfo.inventory.find(
+											({ itemID }) => itemID == this.state.itemID
+										).quantity;
 									}
 
-                                    if (inventoryItem == null){
-                                        this.createError("Invalid ItemID");
-                                    }else if (this.state.itemQuantity <= 0){
-                                        this.createError("Invalid Quantity");
-                                    }else if (inventoryItem.quantity < cartItemQuantity){
-                                        this.createError("Requested Quantity too large");
-                                    }else {
-                                        // Updating if passed error checks
-                                        this.updateCart();
+									if (inventoryItem == null) {
+										this.createError('Invalid ItemID');
+									} else if (this.state.itemQuantity <= 0) {
+										this.createError('Invalid Quantity');
+									} else if (inventoryItem.quantity < cartItemQuantity) {
+										this.createError('Requested Quantity too large');
+									} else {
+										// Updating if passed error checks
+										this.updateCart();
 										Alert.alert(inventoryItem.name + ' added to cart', '', [
 											{
 												text: 'OK',
 												onPress: () => console.log('added to cart Placed'),
 											},
 										]);
-                                    }
-									
+									}
 								}}
 							/>
 						</View>
@@ -661,12 +726,12 @@ class PantryDashboardScreen extends Component {
 				</View>
 
 				<View style={styles.boxes}>
-					{this.state.inventoryInfo === {} ? (
+					{this.state.pantryInfo === {} ? (
 						<Text>Getting inventory...</Text>
-					) : this.state.inventoryInfo.inventory === (null || undefined) ? (
+					) : this.state.pantryInfo.inventory === (null || undefined) ? (
 						<Text>Inventory doesn't exist</Text>
 					) : (
-						Object.values(this.state.inventoryInfo.inventory).map((json) => {
+						Object.values(this.state.pantryInfo.inventory).map((json) => {
 							return (
 								<View style={styles.box}>
 									<View style={styles.inner}>
