@@ -50,7 +50,7 @@ class PantryOrderScreen extends Component {
 								<View>
 									<View style={styles.box}>
 										<View style={styles.inner}>
-											<Text style={fontWeight: 'bold'}>{order.name}:</Text>
+											<Text style={styles.bold}>{order.name}:</Text>
 											{Object.values(order.orderInventory).map((json) => {
 												return (
 													<Text key={json.name}>
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
 	// container: {
 	// 	flex: 1,
 	// },
+	bold: {fontWeight: 'bold'},
 	header: {
 		width: '100%',
 		height: '15%',
