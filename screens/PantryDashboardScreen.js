@@ -306,10 +306,15 @@ class PantryDashboardScreen extends Component {
 					<Button
 						title='Place Order'
 						onPress={() => {
-							this.placeOrder();
-							Alert.alert('Order Placed', '', [
-								{ text: 'OK', onPress: () => console.log('Order Placed') },
-							]);
+							if (this.state.cartInfo.cartInventory == null || 
+								this.state.cartInfo.cartInventory.length == 0){
+									this.createError("Cart Empty: Add Items before placing orders. ")
+							}else {
+								this.placeOrder();
+								Alert.alert('Order Placed', '', [
+									{ text: 'OK', onPress: () => console.log('Order Placed') },
+								]);
+							}
 						}}
 					/>
 				</View>

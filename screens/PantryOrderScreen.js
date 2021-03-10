@@ -48,21 +48,21 @@ class PantryOrderScreen extends Component {
 						Object.values(this.state.pantryInfo.orders).map((order) => {
 							return (
 								<View>
-									<Text>{order.name}</Text>
-									{Object.values(order.orderInventory).map((json) => {
-										return (
-											<View style={styles.box}>
-												<View style={styles.inner}>
+									<View style={styles.box}>
+										<View style={styles.inner}>
+											<Text>{order.name}</Text>
+											{Object.values(order.orderInventory).map((json) => {
+												return (
 													<Text key={json.name}>
 														{json.name}
 														{', '}
 														{json.quantity}
 														{/* Replace X with an image when possible */}
 													</Text>
-												</View>
-											</View>
-										);
-									})}
+												);
+											})}
+										</View>
+									</View>
 								</View>
 							);
 						})
