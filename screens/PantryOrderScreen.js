@@ -3,17 +3,25 @@ import { View, Text, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 class PantryOrderScreen extends Component {
+	_isMounted = false; 
 	state = { pantryInfo: {}, pantryDic: null, pantryKey: null };
 
 	componentDidMount = () => {
+		this._isMounted = true; 
 		console.log('---componentDidMount()---');
 		console.log(this.props.navigation.getParam('pantryInfo', null));
-		this.setState({
-			pantryInfo: this.props.navigation.getParam('pantryInfo', null),
-			pantryDic: this.props.navigation.getParam('pantryDic', null),
-			pantryKey: this.props.navigation.getParam('pantryKey', null),
-		});
+		if (this._isMounted){
+			this.setState({
+				pantryInfo: this.props.navigation.getParam('pantryInfo', null),
+				pantryDic: this.props.navigation.getParam('pantryDic', null),
+				pantryKey: this.props.navigation.getParam('pantryKey', null),
+			});
+		}
 	};
+
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
 
 	render() {
 		return (
@@ -50,7 +58,7 @@ class PantryOrderScreen extends Component {
 								<View>
 									<View style={styles.box}>
 										<View style={styles.inner}>
-											<Text style={styles.bold}>{order.name}:</Text>
+											<Text key={order.name} style={styles.bold}>{order.name}:</Text>
 											{Object.values(order.orderInventory).map((json) => {
 												return (
 													<Text key={json.name}>

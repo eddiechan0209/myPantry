@@ -15,6 +15,7 @@ import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
 
 class PantryDashboardScreen extends Component {
+	_isMounted = false; 
 	state = {
 		pantryKey: null,
 		pantryDic: null,
@@ -213,7 +214,11 @@ class PantryDashboardScreen extends Component {
 			});
 	};
 
+
+	
 	componentDidMount = () => {
+		this._isMounted = true;
+
 		console.log('---componentDidMount()---');
 		const dic = this.props.navigation.getParam('pantryDic', null);
 		const key = this.props.navigation.getParam('pantryKey', null);
@@ -234,29 +239,35 @@ class PantryDashboardScreen extends Component {
 				}
 				console.log('cart ID: ' + this.state.cartID);
 			});
+		if(this._isMounted){
+			this.setState(
+				{
+					pantryKey: key,
+					pantryDic: dic,
+					pantryID: dic[key].pantryID, //formerly dbID
+					pantryName: dic[key].pantryName,
+					pantryAddress: dic[key].address,
+					pantryNumber: dic[key].phone,
+					pantryEmail: dic[key].email,
+				},
+				() => (
+					// console.log(this.state),
+					this.getEntry(), console.log('----------------------')
+				)
+			);
+		
 
-		this.setState(
-			{
-				pantryKey: key,
-				pantryDic: dic,
-				pantryID: dic[key].pantryID, //formerly dbID
-				pantryName: dic[key].pantryName,
-				pantryAddress: dic[key].address,
-				pantryNumber: dic[key].phone,
-				pantryEmail: dic[key].email,
-			},
-			() => (
-				// console.log(this.state),
-				this.getEntry(), console.log('----------------------')
-			)
-		);
-
-		this.state.inventory = [];
+			this.state.inventory = [];
+		}
 
 		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
 		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
 		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
 	};
+
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
 
 	// We have two modals:
 	// 1) Pantry view, where they can edit their inventory or sign out
@@ -695,64 +706,6 @@ class PantryDashboardScreen extends Component {
 														/>
 													</Text>
 												</View>
-											</View>
-										);
-									})
-								)}
-							</View>
-						</View>
-					</View>
-				</Modal>
-
-				<Modal
-					animationType='slide'
-					transparent={true}
-					visible={this.state.modal4Visible}
-					onRequestClose={() => {
-						Alert.alert('Modal has been closed.');
-					}}
-				>
-					<View style={styles.centeredView}>
-						<View style={styles.modalView}>
-							<View style={styles.back}>
-								<AntDesign
-									name='left'
-									size={24}
-									color='black'
-									position='absolute'
-									onPress={() => {
-										this.toggleModalVisibility(4);
-									}}
-								/>
-							</View>
-							<View>
-								<Text>Orders: </Text>
-							</View>
-							<View style={styles.boxes}>
-								{this.state.pantryInfo === {} ? (
-									<Text>Getting Orders...</Text>
-								) : this.state.pantryInfo.orders === (null || undefined) ? (
-									<Text>No Orders</Text>
-								) : (
-									Object.values(this.state.pantryInfo.orders).map((order) => {
-										return (
-											<View>
-												<Text>{order.name};</Text>
-												{Object.values(order.orderInventory).map((json) => {
-													return (
-														<View style={styles.box}>
-															<View style={styles.inner}>
-																<Text key={json.name}>
-																	{'\n'}
-																	{json.name}
-																	{', '}
-																	{json.quantity}
-																	{/* Replace X with an image when possible */}
-																</Text>
-															</View>
-														</View>
-													);
-												})}
 											</View>
 										);
 									})
