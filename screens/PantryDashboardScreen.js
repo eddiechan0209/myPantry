@@ -9,10 +9,12 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
 const Pantry = require('../models/pantry');
 import firebase from 'firebase';
 import showMessage from 'react-native-flash-message';
+import env from '../app.json';
+
+const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 
 class PantryDashboardScreen extends Component {
 	_isMounted = false;
@@ -215,6 +217,7 @@ class PantryDashboardScreen extends Component {
 	};
 
 	componentDidMount = () => {
+		console.log('env ip: ' + env.myIP);
 		this._isMounted = true;
 
 		console.log('---componentDidMount()---');
@@ -687,30 +690,32 @@ class PantryDashboardScreen extends Component {
 								) : this.state.cartInfo.inventory === (null || undefined) ? (
 									<Text>Cart Empty</Text>
 								) : (
-									Object.values(this.state.cartInfo.inventory).map((json) => {
-										return (
-											<View style={styles.box}>
-												<View style={styles.inner}>
-													<Text key={json.name}>
-														{'\n'}
-														{json.name}
-														{', '}
-														{json.quantity}
-														{/* Replace X with an image when possible */}
-														<Button
-															title='   X  '
-															onPress={() => {
-																this.state.itemName = json.name;
-																this.state.itemQuantity = -json.quantity;
-																this.state.itemID = json.itemID;
-																this.updateCart();
-															}}
-														/>
-													</Text>
+									Object.values(this.state.cartInfo.inventory).map(
+										(json, i) => {
+											return (
+												<View style={styles.box} key={i}>
+													<View style={styles.inner}>
+														<Text>
+															{'\n'}
+															{json.name}
+															{', '}
+															{json.quantity}
+															{/* Replace X with an image when possible */}
+															<Button
+																title='   X  '
+																onPress={() => {
+																	this.state.itemName = json.name;
+																	this.state.itemQuantity = -json.quantity;
+																	this.state.itemID = json.itemID;
+																	this.updateCart();
+																}}
+															/>
+														</Text>
+													</View>
 												</View>
-											</View>
-										);
-									})
+											);
+										}
+									)
 								)}
 							</View>
 						</View>
@@ -731,9 +736,9 @@ class PantryDashboardScreen extends Component {
 					) : this.state.pantryInfo.inventory === (null || undefined) ? (
 						<Text>Inventory doesn't exist</Text>
 					) : (
-						Object.values(this.state.pantryInfo.inventory).map((json) => {
+						Object.values(this.state.pantryInfo.inventory).map((json, i) => {
 							return (
-								<View style={styles.box}>
+								<View style={styles.box} key={i}>
 									<View style={styles.inner}>
 										<View>
 											<Text key={json.itemID}>id: {json.itemID}</Text>

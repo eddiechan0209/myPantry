@@ -4,8 +4,9 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
 import { watchPositionAsync } from 'expo-location';
+import env from '../app.json';
 
-const SERVER_URL = 'http:/10.0.0.85:3000/';
+const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {

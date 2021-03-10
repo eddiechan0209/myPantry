@@ -27,7 +27,7 @@ const AppSwitchNavigator = createSwitchNavigator({
 	DashboardScreen: DashboardScreen,
 	CreateAccountScreen: CreateAccountScreen,
 	PantryDashboardScreen: PantryDashboardScreen,
-	PantryOrderScreen: PantryOrderScreen, 
+	PantryOrderScreen: PantryOrderScreen,
 });
 
 const AppNavigator = createAppContainer(AppSwitchNavigator);

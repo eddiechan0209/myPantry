@@ -59,8 +59,6 @@ class DashboardScreen extends Component {
 				latitudeDelta: 0.0922,
 				longitudeDelta: 0.0421,
 			},
-			pantryKeys: this.state.pantryKeys,
-			pantryDic: this.state.pantryDic,
 		});
 	}
 
@@ -82,10 +80,10 @@ class DashboardScreen extends Component {
 					pantryKeys.push(key);
 				}
 				this.state.pantryKeys = pantryKeys;
+				this.forceUpdate();
 			});
 		// console.log(pantryKeys);
 		// console.log('---------');
-		this.forceUpdate();
 	};
 
 	openPantryPage = (key) => {
@@ -101,7 +99,7 @@ class DashboardScreen extends Component {
 		if (!this.state.isReady) {
 			return (
 				<AppLoading
-					startAsync={(this.seePantries, this.getLocationAsync)}
+					startAsync={(this.seePantries, this.getLocationAsync.bind(this))}
 					onFinish={() => (this.state.isReady = true)}
 					onError={console.warn}
 				/>
@@ -122,7 +120,7 @@ class DashboardScreen extends Component {
 							style={{ alignSelf: 'stretch', height: 200 }}
 							region={this.state.mapRegion}
 							// missing paranthesis and parameter... Is this right?
-							onRegionChange={this.handleMapRegionChange}
+							// onRegionChange={this.handleMapRegionChange}
 						/>
 					)}
 				</View>
@@ -131,10 +129,12 @@ class DashboardScreen extends Component {
 					<ScrollView>
 						{this.state.pantryKeys.map((key) => {
 							return (
-								<Text key={key}>
+								<Text key={key} style={styles.pantryText}>
 									{'\n\n'}
 									<TouchableOpacity onPress={() => this.openPantryPage(key)}>
-										<Text>{this.state.pantryDic[key].pantryName}</Text>
+										<Text style={styles.pantryText}>
+											{this.state.pantryDic[key].pantryName}
+										</Text>
 									</TouchableOpacity>
 								</Text>
 							);
@@ -179,8 +179,14 @@ const styles = StyleSheet.create({
 	list: {
 		width: '100%',
 		height: '50%',
+		alignItems: 'center',
+		justifyContent: 'center',
 		// backgroundColor: 'yellow',
 		// position: 'absolute',
+	},
+	pantryText: {
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	button: {
 		position: 'absolute',
