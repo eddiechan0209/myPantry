@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import firebase from 'firebase';
 
 class LoadingScreen extends Component {
@@ -9,7 +9,6 @@ class LoadingScreen extends Component {
 
 	checkIfLoggedIn = () => {
 		firebase.auth().onAuthStateChanged((user) => {
-			// console.log(user);
 			if (user) {
 				var isPantry = false;
 				firebase
@@ -31,7 +30,6 @@ class LoadingScreen extends Component {
 						}
 					});
 			} else {
-				console.log('new user');
 				this.props.navigation.navigate('LoginScreen');
 			}
 		});

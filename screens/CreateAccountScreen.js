@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
-import { watchPositionAsync } from 'expo-location';
 import env from '../app.json';
 
 const SERVER_URL = 'http:/' + env.myIP + ':3000/';
-const Pantry = require('../models/pantry');
 
 class CreateAccountScreen extends Component {
 	createMongoInventory = async (result) => {
@@ -28,12 +25,12 @@ class CreateAccountScreen extends Component {
 		fetch(SERVER_URL + 'pantries', pantry)
 			.then(
 				(response) => response.json(),
-				console.log('successfully created new pantry DB')
+				console.log('successfully created new pantry')
 			)
 			.then((responseJson) => {
 				this.state.pantryID = responseJson._id;
+				// console.log('pantryID: ' + this.state.pantryID);
 
-				console.log('pantryID: ' + this.state.pantryID);
 				firebase
 					.database()
 					.ref('/' + this.state.userType + '/' + result.user.uid)
@@ -78,8 +75,8 @@ class CreateAccountScreen extends Component {
 			)
 			.then((responseJson) => {
 				this.state.cartID = responseJson._id;
+				// console.log('cartID: ' + this.state.cartID);
 
-				console.log('cartID: ' + this.state.cartID);
 				firebase
 					.database()
 					.ref('/' + this.state.userType + '/' + result.user.uid)
@@ -104,27 +101,6 @@ class CreateAccountScreen extends Component {
 				this.state.password
 			)
 			.then(() => {
-				console.log('Signup successful.');
-				//await is waiting for an asychronous function to complete
-
-				// If we want to implement email verification
-				// var actionCodeSettings = {
-				//     url: 'mypantry-924e1.firebaseapp.com',
-				//     iOS: {
-				//       bundleId: 'com.example.ios'
-				//     },
-				//     android: {
-				//       packageName: 'com.example.android',
-				//       installApp: true,
-				//       minimumVersion: '12'
-				//     },
-				//     handleCodeInApp: true,
-				//     // When multiple custom dynamic link domains are defined, specify which
-				//     // one to use.
-				//     dynamicLinkDomain: "example.page.link"
-				// };
-				// link = firebase.auth().sendSignInLinkToEmail(this.state.emailaddress, actionCodeSettings);
-
 				var credential = firebase.auth.EmailAuthProvider.credential(
 					this.state.emailaddress,
 					this.state.password
@@ -143,7 +119,7 @@ class CreateAccountScreen extends Component {
 					});
 			})
 			.catch((error) => {
-				console.log('in error section');
+				console.log('error in writeUserData()');
 				console.log(error.code);
 				console.log(error.message);
 				this.state.error = error.message;

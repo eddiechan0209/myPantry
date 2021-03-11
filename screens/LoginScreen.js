@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import {
 	View,
 	Text,
@@ -8,7 +8,6 @@ import {
 	Modal,
 	TextInput,
 	Button,
-	TouchableHighlight,
 } from 'react-native';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
@@ -18,7 +17,6 @@ import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 class LoginScreen extends Component {
 	googleSignIn = (googleUser) => {
-		// console.log('Google Auth Response', googleUser);
 		// We need to register an Observer on Firebase Auth to make sure auth is initialized.
 		var unsubscribe = firebase.auth().onAuthStateChanged(
 			function (firebaseUser) {
@@ -36,9 +34,7 @@ class LoginScreen extends Component {
 						.auth()
 						.signInWithCredential(credential)
 						.then(function (result) {
-							console.log('user signed in');
 							if (result.additionalUserInfo.isNewUser) {
-								console.log('New user.');
 								firebase
 									.database()
 									.ref('/googleUsers/' + result.user.uid)
@@ -52,7 +48,6 @@ class LoginScreen extends Component {
 									})
 									.then(function (snapshot) {});
 							} else {
-								console.log('Returning User.');
 								firebase
 									.database()
 									.ref('/googleUsers/' + result.user.uid)
@@ -62,14 +57,7 @@ class LoginScreen extends Component {
 							}
 						})
 						.catch((error) => {
-							// Handle Errors here.
-							var errorCode = error.code;
-							var errorMessage = error.message;
-							// The email of the user's account used.
-							var email = error.email;
-							// The firebase.auth.AuthCredential type that was used.
-							var credential = error.credential;
-							// ...
+							console.log('error in googleSignIn(): ' + error.message);
 						});
 				} else {
 					console.log('User already signed-in Firebase.');
@@ -79,7 +67,7 @@ class LoginScreen extends Component {
 	};
 
 	emailSignIn = () => {
-		// Dont know if I'm building credentials that well
+		// Proper way to build credentials?
 		var credential = firebase.auth.EmailAuthProvider.credential(
 			this.state.emailaddress,
 			this.state.password
@@ -88,38 +76,16 @@ class LoginScreen extends Component {
 			.auth()
 			.signInWithCredential(credential)
 			.then((result) => {
-				// console.log("user signed in");
-				// if(this.state){
-				//     firebase.database().ref("/"+ this.state.userType + "/" + result.user.uid).set({
-				//         email: this.state.emailaddress,
-				//         first_name: this.state.firstname,
-				//         last_name: this.state.lastname,
-				//         pantryName: this.state.pantryName,
-				//         address: this.state.address,
-				//         phone: this.state.phone,
-				//         created_at: Date.now()
-
-				//     })
-				// }
-				// else{
-				//     firebase.database().ref("/"+ this.state.userType + "/"  + result.user.uid).set({
-				//         email: this.state.emailaddress,
-				//         first_name: this.state.firstname,
-				//         last_name: this.state.lastname,
-
-				//     })
-				// }
+				// should not need navigation anyways
 				this.props.navigation.navigate('DashboardScreen');
 			})
 			.catch((error) => {
 				this.state.error = error.message;
-				console.log(this.state.error);
 				this.forceUpdate();
 			});
 	};
 
 	renderSignIn = () => {
-		console.log('in renderSignIn');
 		return (
 			<View>
 				<TextInput
@@ -203,9 +169,7 @@ class LoginScreen extends Component {
 	};
 
 	showError = () => {
-		console.log('state of error: ' + this.state.error);
 		if (this.state.error != '') {
-			console.log('in showError THERE IS ERROR');
 			return this.state.error;
 		}
 	};
@@ -355,18 +319,6 @@ class LoginScreen extends Component {
 									onPress={() => this.emailSignIn()}
 								/>
 							</View>
-
-							{/* <Text style={styles.modalText}>Sign in with...</Text>
-                        <TouchableOpacity 
-                            style={styles.createSignInButton}
-                            onPress={() => this.renderSignIn()}>
-                                <Text style={styles.modalText}>EMAIL</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={styles.createSignInButton}
-                            onPress={() => this.signInWithGoogleAsync()}>
-                                <Text style={styles.modalText}>GOOGLE</Text>
-                        </TouchableOpacity> */}
 						</View>
 					</View>
 				</Modal>
@@ -404,7 +356,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	logo: {},
 	sign: {
 		justifyContent: 'flex-end',
 		marginBottom: 100,
@@ -413,7 +364,6 @@ const styles = StyleSheet.create({
 	},
 	createAccountButton: {
 		elevation: 8,
-		// backgroundColor: "green",
 		borderRadius: 40, // how curvy the button is
 		paddingVertical: 10,
 		paddingHorizontal: 12,
@@ -421,7 +371,6 @@ const styles = StyleSheet.create({
 	},
 	createSignInButton: {
 		elevation: 8,
-		// backgroundColor: "#FFFFFF",
 		borderRadius: 40,
 		paddingVertical: 10,
 		paddingHorizontal: 12,

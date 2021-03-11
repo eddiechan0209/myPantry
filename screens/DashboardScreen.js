@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import {
 	View,
 	Text,
@@ -6,10 +6,9 @@ import {
 	Button,
 	ScrollView,
 	TouchableOpacity,
-	UseState,
+	ActivityIndicator,
 } from 'react-native';
 
-import { Asset } from 'expo-asset';
 import AppLoading from 'expo-app-loading';
 import firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
@@ -62,12 +61,7 @@ class DashboardScreen extends Component {
 		});
 	}
 
-	// handleClickPantries = () => {
-	// 	this.props.navigation.navigate('PantryListScreen');
-	// };
-
 	seePantries = async () => {
-		// console.log('seePantry()');
 		const pantryKeys = [];
 		firebase
 			.database()
@@ -75,20 +69,16 @@ class DashboardScreen extends Component {
 			.once('value')
 			.then((snapshot) => {
 				this.state.pantryDic = snapshot.val();
-				// console.log('snapshot: ' + this.state.pantryDic);
+				// console.log('snapshot: ' + JSON.stringify(this.state.pantryDic));
 				for (const key in this.state.pantryDic) {
 					pantryKeys.push(key);
 				}
 				this.state.pantryKeys = pantryKeys;
 				this.forceUpdate();
 			});
-		// console.log(pantryKeys);
-		// console.log('---------');
 	};
 
 	openPantryPage = (key) => {
-		const id = this.state.pantryDic[key].dbID;
-		console.log('DashboardScreen id: ' + id);
 		this.props.navigation.navigate('PantryDashboardScreen', {
 			pantryKey: key,
 			pantryDic: this.state.pantryDic,
@@ -99,7 +89,7 @@ class DashboardScreen extends Component {
 		if (!this.state.isReady) {
 			return (
 				<AppLoading
-					startAsync={(this.seePantries, this.getLocationAsync.bind(this))}
+					startAsync={(this.seePantries, this.getLocationAsync)}
 					onFinish={() => (this.state.isReady = true)}
 					onError={console.warn}
 				/>
@@ -110,7 +100,8 @@ class DashboardScreen extends Component {
 				{/* <Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text> */}
 				<View style={styles.map}>
 					{this.state.locationResult === null ? (
-						<Text>Finding your current location...</Text>
+						// <Text>Finding your current location...</Text>
+						<ActivityIndicator size='large' />
 					) : this.state.hasLocationPermissions === false ? (
 						<Text>Location permissions are not granted.</Text>
 					) : this.state.mapRegion === null ? (
@@ -164,11 +155,6 @@ const styles = StyleSheet.create({
 		// padding: 5,
 	},
 	map: {
-		// position: 'absolute',
-		// top: 0,
-		// left: 0,
-		// right: 0,
-		// bottom: 200,
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: '100%',
@@ -181,8 +167,6 @@ const styles = StyleSheet.create({
 		height: '50%',
 		alignItems: 'center',
 		justifyContent: 'center',
-		// backgroundColor: 'yellow',
-		// position: 'absolute',
 	},
 	pantryText: {
 		alignItems: 'center',
@@ -191,6 +175,5 @@ const styles = StyleSheet.create({
 	button: {
 		position: 'absolute',
 		bottom: 35,
-		// backgroundColor: 'orange',
 	},
 });
