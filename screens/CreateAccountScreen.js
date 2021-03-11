@@ -23,13 +23,9 @@ class CreateAccountScreen extends Component {
 		};
 
 		fetch(SERVER_URL + 'pantries', pantry)
-			.then(
-				(response) => response.json(),
-				console.log('successfully created new pantry')
-			)
+			.then((response) => response.json())
 			.then((responseJson) => {
 				this.state.pantryID = responseJson._id;
-				// console.log('pantryID: ' + this.state.pantryID);
 
 				firebase
 					.database()
@@ -44,6 +40,7 @@ class CreateAccountScreen extends Component {
 						pantryID: this.state.pantryID,
 						created_at: Date.now(),
 					});
+				console.log('successfully created new pantry');
 			})
 			.catch((error) => {
 				console.error(error);
@@ -69,13 +66,9 @@ class CreateAccountScreen extends Component {
 		};
 
 		fetch(SERVER_URL + 'cart', cart)
-			.then(
-				(response) => response.json(),
-				console.log('successfully created new user cart')
-			)
+			.then((response) => response.json())
 			.then((responseJson) => {
 				this.state.cartID = responseJson._id;
-				// console.log('cartID: ' + this.state.cartID);
 
 				firebase
 					.database()
@@ -86,6 +79,7 @@ class CreateAccountScreen extends Component {
 						last_name: this.state.lastname,
 						cartID: this.state.cartID,
 					});
+				console.log('successfully created new user cart');
 			})
 			.catch((error) => {
 				console.error(error);
@@ -110,7 +104,6 @@ class CreateAccountScreen extends Component {
 					.signInWithCredential(credential)
 					.then((result) => {
 						this.state.uid = result.user.uid;
-						console.log('user signed in');
 						if (this.state.userType == 'pantry') {
 							this.createMongoInventory(result);
 						} else {
@@ -120,7 +113,6 @@ class CreateAccountScreen extends Component {
 			})
 			.catch((error) => {
 				console.log('error in writeUserData()');
-				console.log(error.code);
 				console.log(error.message);
 				this.state.error = error.message;
 				this.forceUpdate();
@@ -203,8 +195,6 @@ class CreateAccountScreen extends Component {
 	};
 
 	render() {
-		// console.log("render:" + JSON.stringify(this.state));
-		console.log('usertype: ' + this.state.userType);
 		return (
 			<View style={styles.container}>
 				<View style={styles.back}>
