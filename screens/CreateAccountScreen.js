@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
-import { watchPositionAsync } from 'expo-location';
+import env from '../app.json';
 
-const SERVER_URL = 'http:/10.0.0.85:3000/';
-const Pantry = require('../models/pantry');
+const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 
 class CreateAccountScreen extends Component {
 	createMongoInventory = async (result) => {
@@ -25,14 +23,10 @@ class CreateAccountScreen extends Component {
 		};
 
 		fetch(SERVER_URL + 'pantries', pantry)
-			.then(
-				(response) => response.json(),
-				console.log('successfully created new pantry DB')
-			)
+			.then((response) => response.json())
 			.then((responseJson) => {
 				this.state.pantryID = responseJson._id;
 
-				console.log('pantryID: ' + this.state.pantryID);
 				firebase
 					.database()
 					.ref('/' + this.state.userType + '/' + result.user.uid)
@@ -46,6 +40,7 @@ class CreateAccountScreen extends Component {
 						pantryID: this.state.pantryID,
 						created_at: Date.now(),
 					});
+				console.log('successfully created new pantry');
 			})
 			.catch((error) => {
 				console.error(error);
@@ -71,14 +66,10 @@ class CreateAccountScreen extends Component {
 		};
 
 		fetch(SERVER_URL + 'cart', cart)
-			.then(
-				(response) => response.json(),
-				console.log('successfully created new user cart')
-			)
+			.then((response) => response.json())
 			.then((responseJson) => {
 				this.state.cartID = responseJson._id;
 
-				console.log('cartID: ' + this.state.cartID);
 				firebase
 					.database()
 					.ref('/' + this.state.userType + '/' + result.user.uid)
@@ -88,6 +79,7 @@ class CreateAccountScreen extends Component {
 						last_name: this.state.lastname,
 						cartID: this.state.cartID,
 					});
+				console.log('successfully created new user cart');
 			})
 			.catch((error) => {
 				console.error(error);
@@ -103,27 +95,6 @@ class CreateAccountScreen extends Component {
 				this.state.password
 			)
 			.then(() => {
-				console.log('Signup successful.');
-				//await is waiting for an asychronous function to complete
-
-				// If we want to implement email verification
-				// var actionCodeSettings = {
-				//     url: 'mypantry-924e1.firebaseapp.com',
-				//     iOS: {
-				//       bundleId: 'com.example.ios'
-				//     },
-				//     android: {
-				//       packageName: 'com.example.android',
-				//       installApp: true,
-				//       minimumVersion: '12'
-				//     },
-				//     handleCodeInApp: true,
-				//     // When multiple custom dynamic link domains are defined, specify which
-				//     // one to use.
-				//     dynamicLinkDomain: "example.page.link"
-				// };
-				// link = firebase.auth().sendSignInLinkToEmail(this.state.emailaddress, actionCodeSettings);
-
 				var credential = firebase.auth.EmailAuthProvider.credential(
 					this.state.emailaddress,
 					this.state.password
@@ -133,7 +104,6 @@ class CreateAccountScreen extends Component {
 					.signInWithCredential(credential)
 					.then((result) => {
 						this.state.uid = result.user.uid;
-						console.log('user signed in');
 						if (this.state.userType == 'pantry') {
 							this.createMongoInventory(result);
 						} else {
@@ -142,8 +112,7 @@ class CreateAccountScreen extends Component {
 					});
 			})
 			.catch((error) => {
-				console.log('in error section');
-				console.log(error.code);
+				console.log('error in writeUserData()');
 				console.log(error.message);
 				this.state.error = error.message;
 				this.forceUpdate();
@@ -226,8 +195,6 @@ class CreateAccountScreen extends Component {
 	};
 
 	render() {
-		// console.log("render:" + JSON.stringify(this.state));
-		console.log('usertype: ' + this.state.userType);
 		return (
 			<View style={styles.container}>
 				<View style={styles.back}>

@@ -9,113 +9,103 @@ import {
 	Alert,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-const SERVER_URL = 'http:/192.168.1.70:3000/';
-const Pantry = require('../models/pantry');
 import firebase from 'firebase';
-import showMessage from 'react-native-flash-message';
+import env from '../app.json';
+
+const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 
 class PantryDashboardScreen extends Component {
-	_isMounted = false;
 	state = {
+		// exclusive to pantries
 		pantryKey: null,
 		pantryDic: null,
-		pantryID: null, //formerly dbID
+		pantryID: null,
 		pantryName: null,
-		pantryAddress: null,
-		pantryNumber: null,
-		pantryEmail: null,
 		pantryInfo: {},
-		inventoryString: '',
-		modal1Visible: false,
-		modal2Visible: false,
-		modal3Visible: false,
-		modal4Visible: false,
-		itemID: null,
-		itemName: null,
-		itemQuantity: null,
+		modalPantryEditInventory: false,
+
+		// exclusive to consumers
 		cartID: '',
 		cartInfo: {},
 		cartInventory: [],
 		userName: null,
+		modalConsumerAddItem: false,
+		modalConsumerViewCart: false,
+
+		// used by both to edit inventory/cart
+		itemID: null,
+		itemName: null,
+		itemQuantity: null,
 	};
 
-	// updates state's pantryInfo and inventory
-	getEntry = async () => {
-		console.log('id: ' + this.state.pantryID);
-		console.log(SERVER_URL + 'pantries/' + this.state.pantryID);
-		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
-			.then((response) => {
-				if (response.status >= 200 || response.status <= 299) {
-					// console.log('Working');
-					return response.json();
-				} else {
-					console.log('error in GET. statuscode: ' + response.status);
+	componentDidMount = () => {
+		const dic = this.props.navigation.getParam('pantryDic', null);
+		const key = this.props.navigation.getParam('pantryKey', null);
+		this.setState(
+			{
+				pantryKey: key,
+				pantryDic: dic,
+				pantryID: dic[key].pantryID,
+				pantryName: dic[key].pantryName,
+			},
+			() => {
+				this.getPantryInventory();
+			}
+		);
+
+		const currUser = firebase.auth().currentUser;
+		firebase
+			.database()
+			.ref('/consumer')
+			.once('value')
+			.then((snapshot) => {
+				// check every consumer uid with currentUser uid
+				for (const uid in snapshot.val()) {
+					if (uid === currUser.uid) {
+						this.setState({
+							cartID: snapshot.val()[uid].cartID,
+							userName:
+								snapshot.val()[uid].first_name +
+								' ' +
+								snapshot.val()[uid].last_name,
+						});
+					}
 				}
-			})
-			.then((responseJson) => {
-				console.log('reponse :' + JSON.stringify(responseJson));
-
-				this.state.pantryInfo = responseJson;
-				// console.log(JSON.stringify(this.state.pantryInfo));
-				this.state.pantryInfo.inventory.forEach((item) => {
-					this.state.inventory.push(item);
-				});
-
-				// console.log(
-				// 	'Inventory info: ' +
-				// 		JSON.stringify(this.state.pantryInfo.inventory)
-				// );
-				this.forceUpdate();
-				//console.log(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-				console.error('^ is the error, in GET');
 			});
 	};
 
-	// update's state's cartInfo
-	getCart = async () => {
-		return fetch(SERVER_URL + 'cart/' + this.state.cartID)
+	// ----------------------------- PANTRY FUNCTIONS -----------------------------
+	// updates state's pantryInfo (and therefore display)
+	getPantryInventory = async () => {
+		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
 			.then((response) => {
 				if (response.status >= 200 || response.status <= 299) {
-					// console.log('Working');
 					return response.json();
 				} else {
-					console.log('error in getCart(). Statuscode: ' + response.status);
+					console.log(
+						'error in getPantryInventory() statuscode: ' + response.status
+					);
 				}
 			})
 			.then((responseJson) => {
-				console.log('cart inventory:' + JSON.stringify(responseJson.inventory));
-
-				this.state.cartInfo = responseJson;
-
-				// this.state.cartInfo.inventory.forEach((item) => {
-				// 	this.state.cartInventory.push(item);
-				// });
-
-				this.forceUpdate();
-				//console.log(responseJson);
+				this.setState(
+					{
+						pantryInfo: responseJson,
+					},
+					() => this.forceUpdate()
+				);
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('^ is the error, in GET');
+				console.error('error in getPantryInventory()');
 			});
 	};
 
 	// update's pantry's inventory
 	updateInventory = async () => {
-		console.log(
-			'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
-		);
-		console.log('pantryID: ' + this.state.pantryID);
-		// Adding the values that were inputted to the existing inventory list
-		// pantryEntry.inventory.push({
-		// 	itemID: 6,
-		// 	name: this.state.itemName,
-		// 	quantity: parseInt(this.state.itemQuantity),
-		// });
-
+		// console.log(
+		// 	'input: ' + this.state.itemName + ' ' + this.state.itemQuantity
+		// );
 		const patchEntry = {
 			method: 'PATCH',
 			headers: {
@@ -133,8 +123,6 @@ class PantryDashboardScreen extends Component {
 			}),
 		};
 
-		console.log(patchEntry);
-
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID, patchEntry)
 			.then((response) => {
 				if (response.status >= 200 && response.status <= 299) {
@@ -142,29 +130,52 @@ class PantryDashboardScreen extends Component {
 				} else {
 					console.log('error in UPDATE. statuscode: ' + response.status);
 				}
-
-				// console.log(this.state);
 			})
 			.then((responseJson) => {
 				// console.log('reponseJson :' + JSON.stringify(responseJson));
-				this.getEntry();
+				this.getPantryInventory();
 				this.setState({
 					itemID: null,
 					itemName: null,
 					itemQuantity: null,
-					modal1Visible: false,
+					modalPantryEditInventory: false,
 				});
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('^ is the error, in UPDATE');
+				console.error('error in updateInventory()');
+			});
+	};
+	// ----------------------------- END OF PANTRY FUNCTIONS -----------------------------
+
+	// ----------------------------- CONSUMER FUNCTIONS -----------------------------
+	// update's state's cartInfo (and therefore display)
+	getCart = async () => {
+		return fetch(SERVER_URL + 'cart/' + this.state.cartID)
+			.then((response) => {
+				if (response.status >= 200 || response.status <= 299) {
+					return response.json();
+				} else {
+					console.log('error in getCart(). Statuscode: ' + response.status);
+				}
+			})
+			.then((responseJson) => {
+				this.setState(
+					{
+						cartInfo: responseJson,
+					},
+					() => this.forceUpdate()
+				);
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('error in getCart()');
 			});
 	};
 
 	// update's consumer's cart
 	updateCart = async () => {
 		let name = 'Unknown';
-
 		this.state.pantryInfo.inventory.forEach((item) => {
 			if (item.itemID == this.state.itemID) {
 				name = item.name;
@@ -197,173 +208,19 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				// console.log('reponseJson :' + JSON.stringify(responseJson));
-				console.log('why not getting getCart');
-				this.getEntry();
+				// console.log('reponseJson:' + JSON.stringify(responseJson));
+				this.getPantryInventory();
 				this.getCart();
 				this.setState({
 					itemID: null,
 					itemName: null,
 					itemQuantity: null,
 				});
-				console.log('why not getting getCart');
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('^ is the error, in updateCart()');
+				console.error('error in updateCart()');
 			});
-	};
-
-	componentDidMount = () => {
-		this._isMounted = true;
-
-		console.log('---componentDidMount()---');
-		const dic = this.props.navigation.getParam('pantryDic', null);
-		const key = this.props.navigation.getParam('pantryKey', null);
-
-		const currUser = firebase.auth().currentUser;
-		firebase
-			.database()
-			.ref('/consumer')
-			.once('value')
-			.then((snapshot) => {
-				for (const uid in snapshot.val()) {
-					if (uid === currUser.uid) {
-						this.setState({
-							cartID: snapshot.val()[uid].cartID,
-							userName:
-								snapshot.val()[uid].first_name +
-								' ' +
-								snapshot.val()[uid].last_name,
-						});
-					}
-				}
-				console.log('cart ID: ' + this.state.cartID);
-			});
-		if (this._isMounted) {
-			this.setState(
-				{
-					pantryKey: key,
-					pantryDic: dic,
-					pantryID: dic[key].pantryID, //formerly dbID
-					pantryName: dic[key].pantryName,
-					pantryAddress: dic[key].address,
-					pantryNumber: dic[key].phone,
-					pantryEmail: dic[key].email,
-				},
-				() => (
-					// console.log(this.state),
-					this.getEntry(), console.log('----------------------')
-				)
-			);
-
-			this.state.inventory = [];
-		}
-
-		// console.log('PantryInventoryScreen pantryID: ' + this.state.pantryID);
-		// console.log('PantryInventoryScreen key: ' + this.state.pantryKey);
-		// console.log('PantryInventoryScreen Dic: ' + this.state.pantryDic);
-	};
-
-	componentWillUnmount() {
-		this._isMounted = false;
-	}
-
-	// We have two modals:
-	// 1) Pantry view, where they can edit their inventory or sign out
-	// 2) Consumer view, where they can edit their cart and place an order
-	// 3) Cart View, allow users to view their cart
-	// 4) Order View, allow pantries to view orders
-	toggleModalVisibility = (num) => {
-		if (num == 1) {
-			this.setState((prevState) => ({
-				modal1Visible: !prevState.modal1Visible,
-			}));
-		} else if (num == 2) {
-			this.setState((prevState) => ({
-				modal2Visible: !prevState.modal2Visible,
-			}));
-		} else if (num == 3) {
-			this.setState((prevState) => ({
-				modal3Visible: !prevState.modal3Visible,
-			}));
-		} else {
-			this.setState((prevState) => ({
-				modal4Visible: !prevState.modal4Visible,
-			}));
-		}
-	};
-
-	// controls pantry view or consumer view
-	footer = () => {
-		// user on page is consumer
-		if (this.state.cartID) {
-			return (
-				<View
-					style={{
-						flex: 1,
-						flexDirection: 'row',
-						justifyContent: 'space-around',
-					}}
-				>
-					<Button
-						title='Add Item'
-						onPress={() => this.toggleModalVisibility(2)}
-					/>
-					<Button
-						title='View Cart'
-						onPress={() => this.toggleModalVisibility(3)}
-					/>
-					<Button
-						title='Place Order'
-						onPress={() => {
-							this.getCart();
-							if (
-								this.state.cartInfo.inventory == null ||
-								this.state.cartInfo.inventory.length == 0
-							) {
-								this.createError(
-									'Cart Empty: Add Items before placing orders. '
-								);
-							} else {
-								this.placeOrder();
-								Alert.alert('Order Placed', '', [
-									{ text: 'OK', onPress: () => console.log('Order Placed') },
-								]);
-							}
-						}}
-					/>
-				</View>
-			);
-		} else {
-			return (
-				<View
-					style={{
-						flex: 1,
-						flexDirection: 'row',
-						justifyContent: 'space-around',
-					}}
-				>
-					<Button
-						title='Edit Inventory'
-						onPress={() => this.toggleModalVisibility(1)}
-					/>
-					<Button
-						title='View Orders'
-						onPress={() => {
-							this.getEntry();
-							this.props.navigation.navigate('PantryOrderScreen', {
-								pantryInfo: this.state.pantryInfo,
-								pantryDic: this.state.pantryDic,
-								pantryKey: this.state.pantryKey,
-							});
-							this.toggleModalVisibility(4);
-						}}
-					/>
-					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
-				</View>
-			);
-		}
 	};
 
 	// reduces Pantry inventory according to consumer's cart
@@ -378,11 +235,8 @@ class PantryDashboardScreen extends Component {
 			// We have the cart item quantity, but need the pantry item quantity
 			// We can improve this later by adjusting our model
 			this.state.pantryInfo.inventory.forEach((item2) => {
-				console.log('1: ' + item.itemID + ' 2: ' + item2.itemID);
 				if (item.itemID == item2.itemID) {
 					quantity = item2.quantity - item.quantity;
-					console.log('quantity: ' + quantity);
-
 					inventoryUpdate.push({
 						itemID: item2.itemID,
 						name: item2.itemName,
@@ -398,7 +252,7 @@ class PantryDashboardScreen extends Component {
 			});
 		});
 
-		console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
+		// console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
 
 		const patchEntry = {
 			method: 'PATCH',
@@ -415,8 +269,6 @@ class PantryDashboardScreen extends Component {
 			}),
 		};
 
-		console.log(patchEntry);
-
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID, patchEntry)
 			.then((response) => {
 				if (response.status >= 200 && response.status <= 299) {
@@ -426,8 +278,8 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				// console.log('reponseJson :' + JSON.stringify(responseJson));
-				this.getEntry();
+				// console.log('reponseJson:' + JSON.stringify(responseJson));
+				this.getPantryInventory();
 				this.getCart();
 				this.clearCart();
 				this.setState({
@@ -435,12 +287,11 @@ class PantryDashboardScreen extends Component {
 					itemName: null,
 					itemQuantity: null,
 				});
-				console.log('why not getting getCart');
 				this.forceUpdate();
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('^ is the error, in updateCart()');
+				console.error('error in placeOrder()');
 			});
 	};
 
@@ -457,23 +308,18 @@ class PantryDashboardScreen extends Component {
 			}),
 		};
 
-		return (
-			fetch(SERVER_URL + 'cart/' + this.state.cartID + '/clear', patchEntry)
-				// .then((response) => {
-				// 	if (response.status >= 200 && response.status <= 299) {
-				// 		return response.json();
-				// 	} else {
-				// 		console.log('error in updateCart(). statuscode: ' + response.status);
-				// 	}
-				// })
-				.then((something) => {
-					this.updateCart();
-				})
-				.catch((error) => {
-					console.error(error);
-					console.error('^ is the error, in clearCart()');
-				})
-		);
+		return fetch(
+			SERVER_URL + 'cart/' + this.state.cartID + '/clear',
+			patchEntry
+		)
+			.then((response) => {
+				// console.log('reponseJson:' + JSON.stringify(responseJson));
+				this.updateCart();
+			})
+			.catch((error) => {
+				console.error(error);
+				console.error('error in clearCart()');
+			});
 	};
 
 	// Shows back button for consumers (pantries don't need this)
@@ -513,6 +359,89 @@ class PantryDashboardScreen extends Component {
 		}
 	};
 
+	// ----------------------------- END OF CONSUMER FUNCTIONS -----------------------------
+
+	// We have four modals:
+	// 1) Pantry: edit inventory
+	// 2) Consumer: add items to cart and place an order
+	// 3) Consumer: cart view and item removal
+	toggleModalVisibility = (num) => {
+		if (num == 1) {
+			this.setState((prevState) => ({
+				modalPantryEditInventory: !prevState.modalPantryEditInventory,
+			}));
+		} else if (num == 2) {
+			this.setState((prevState) => ({
+				modalConsumerAddItem: !prevState.modalConsumerAddItem,
+			}));
+		} else {
+			this.setState((prevState) => ({
+				modalConsumerViewCart: !prevState.modalConsumerViewCart,
+			}));
+		}
+	};
+
+	// controls pantry view or consumer view
+	footer = () => {
+		// user on page is consumer
+		if (this.state.cartID) {
+			return (
+				<View style={styles.footerButtons}>
+					<Button
+						title='Add Item'
+						onPress={() => this.toggleModalVisibility(2)}
+					/>
+					<Button
+						title='View Cart'
+						onPress={() => this.toggleModalVisibility(3)}
+					/>
+					<Button
+						title='Place Order'
+						onPress={() => {
+							this.getCart();
+							if (
+								this.state.cartInfo.inventory == null ||
+								this.state.cartInfo.inventory.length == 0
+							) {
+								this.createError(
+									'Cart Empty: Add Items before placing orders. '
+								);
+							} else {
+								this.placeOrder();
+								Alert.alert('Order Placed', '', [
+									{ text: 'OK', onPress: () => console.log('Order Placed') },
+								]);
+							}
+						}}
+					/>
+				</View>
+			);
+		}
+		// user is a pantry
+		else {
+			return (
+				<View style={styles.footerButtons}>
+					<Button
+						title='Edit Inventory'
+						onPress={() => this.toggleModalVisibility(1)}
+					/>
+					<Button
+						title='View Orders'
+						onPress={() => {
+							this.getPantryInventory();
+							this.props.navigation.navigate('PantryOrderScreen', {
+								pantryInfo: this.state.pantryInfo,
+								pantryDic: this.state.pantryDic,
+								pantryKey: this.state.pantryKey,
+							});
+						}}
+					/>
+					<Button title='Sign Out' onPress={() => firebase.auth().signOut()} />
+				</View>
+			);
+		}
+	};
+
 	createError(errorString) {
 		Alert.alert('Error', errorString, [
 			{ text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -525,7 +454,7 @@ class PantryDashboardScreen extends Component {
 				<Modal
 					animationType='slide'
 					transparent={true}
-					visible={this.state.modal1Visible}
+					visible={this.state.modalPantryEditInventory}
 					onRequestClose={() => {
 						Alert.alert('Modal has been closed.');
 					}}
@@ -540,7 +469,6 @@ class PantryDashboardScreen extends Component {
 									position='absolute'
 									onPress={() => {
 										this.toggleModalVisibility(1);
-										console.log('forceupdate?');
 										this.forceUpdate();
 									}}
 								/>
@@ -564,7 +492,22 @@ class PantryDashboardScreen extends Component {
 								style={styles.input}
 							/>
 
-							<Button title='Update' onPress={() => this.updateInventory()} />
+							<Button
+								title='Update'
+								onPress={() => {
+									if (this.state.itemID < 0 || this.state.itemID == null) {
+										this.createError('Invalid ItemID');
+									} else if (
+										this.state.itemQuantity <= 0 ||
+										this.state.itemQuantity == null
+									) {
+										this.createError('Invalid Quantity');
+									} else {
+										// Updating if passed error checks
+										this.updateInventory();
+									}
+								}}
+							/>
 						</View>
 					</View>
 				</Modal>
@@ -572,7 +515,7 @@ class PantryDashboardScreen extends Component {
 				<Modal
 					animationType='slide'
 					transparent={true}
-					visible={this.state.modal2Visible}
+					visible={this.state.modalConsumerAddItem}
 					onRequestClose={() => {
 						Alert.alert('Modal has been closed.');
 					}}
@@ -602,10 +545,6 @@ class PantryDashboardScreen extends Component {
 								placeholder={'Amount'}
 								style={styles.input}
 							/>
-
-							{/* <View>
-								<Text>Added {this.state.itemName} to Cart</Text>
-							</View> */}
 
 							<Button
 								title='Add'
@@ -660,7 +599,7 @@ class PantryDashboardScreen extends Component {
 				<Modal
 					animationType='slide'
 					transparent={true}
-					visible={this.state.modal3Visible}
+					visible={this.state.modalConsumerViewCart}
 					onRequestClose={() => {
 						Alert.alert('Modal has been closed.');
 					}}
@@ -685,18 +624,20 @@ class PantryDashboardScreen extends Component {
 								{this.state.cartInfo === {} ? (
 									<Text>Getting cart...</Text>
 								) : this.state.cartInfo.inventory === (null || undefined) ? (
-									<Text>Cart Empty</Text>
+									<Text></Text>
 								) : (
-									Object.values(this.state.cartInfo.inventory).map((json) => {
-										return (
-											<View style={styles.box}>
-												<View style={styles.inner}>
-													<Text key={json.name}>
-														{'\n'}
-														{json.name}
-														{', '}
-														{json.quantity}
-														{/* Replace X with an image when possible */}
+									Object.values(this.state.cartInfo.inventory).map(
+										(json, i) => {
+											return (
+												<View style={styles.box} key={i}>
+													<View style={styles.inner}>
+														<Text>
+															{'\n'}
+															{json.name}
+															{', '}
+															{json.quantity}
+															{/* Replace X with an image when possible */}
+														</Text>
 														<Button
 															title='   X  '
 															onPress={() => {
@@ -706,11 +647,11 @@ class PantryDashboardScreen extends Component {
 																this.updateCart();
 															}}
 														/>
-													</Text>
+													</View>
 												</View>
-											</View>
-										);
-									})
+											);
+										}
+									)
 								)}
 							</View>
 						</View>
@@ -727,13 +668,13 @@ class PantryDashboardScreen extends Component {
 
 				<View style={styles.boxes}>
 					{this.state.pantryInfo === {} ? (
-						<Text>Getting inventory...</Text>
+						<Text></Text>
 					) : this.state.pantryInfo.inventory === (null || undefined) ? (
-						<Text>Inventory doesn't exist</Text>
+						<Text>Error: Inventory doesn't exist</Text>
 					) : (
-						Object.values(this.state.pantryInfo.inventory).map((json) => {
+						Object.values(this.state.pantryInfo.inventory).map((json, i) => {
 							return (
-								<View style={styles.box}>
+								<View style={styles.box} key={i}>
 									<View style={styles.inner}>
 										<View>
 											<Text key={json.itemID}>id: {json.itemID}</Text>
@@ -768,7 +709,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		textAlign: 'center',
 		alignItems: 'center',
-		// backgroundColor: 'gray',
 	},
 	boxes: {
 		width: '100%',
@@ -796,6 +736,11 @@ const styles = StyleSheet.create({
 		height: '10%',
 		bottom: 20,
 	},
+	footerButtons: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+	},
 	errorText: {
 		position: 'absolute',
 		top: 0,
@@ -812,13 +757,6 @@ const styles = StyleSheet.create({
 		marginLeft: 20,
 		// position: 'absolute',
 	},
-	// info: {
-	// 	...StyleSheet.absoluteFillObject,
-	// 	alignSelf: 'flex-end',
-	// 	marginTop: 50,
-	// 	marginLeft: 20,
-	// 	// position: 'absolute',
-	// },
 	title: {
 		marginTop: 30,
 	},
@@ -830,13 +768,11 @@ const styles = StyleSheet.create({
 		alignSelf: 'flex-end',
 		marginTop: 10,
 		marginLeft: 5,
-		// position: 'absolute',
 	},
 	modal: {
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
-		// transform: translate(-50%, -50%);
 	},
 	centeredView: {
 		flex: 1,
@@ -858,34 +794,5 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
 		elevation: 5,
-	},
-	buttonText: {
-		fontSize: 20,
-		color: 'black',
-		justifyContent: 'center',
-		textAlign: 'center',
-	},
-	centeredView: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginTop: 22,
-	},
-	openButton: {
-		backgroundColor: '#F194FF',
-		borderRadius: 20,
-		padding: 10,
-		elevation: 2,
-	},
-	modalText: {
-		marginBottom: 15,
-		textAlign: 'center',
-	},
-	back: {
-		...StyleSheet.absoluteFillObject,
-		alignSelf: 'flex-end',
-		marginTop: 10,
-		marginLeft: 5,
-		// position: 'absolute',
 	},
 });

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import {
 	View,
 	Text,
@@ -6,10 +6,9 @@ import {
 	Button,
 	ScrollView,
 	TouchableOpacity,
-	UseState,
+	ActivityIndicator,
 } from 'react-native';
 
-import { Asset } from 'expo-asset';
 import AppLoading from 'expo-app-loading';
 import firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
@@ -59,17 +58,10 @@ class DashboardScreen extends Component {
 				latitudeDelta: 0.0922,
 				longitudeDelta: 0.0421,
 			},
-			pantryKeys: this.state.pantryKeys,
-			pantryDic: this.state.pantryDic,
 		});
 	}
 
-	// handleClickPantries = () => {
-	// 	this.props.navigation.navigate('PantryListScreen');
-	// };
-
 	seePantries = async () => {
-		// console.log('seePantry()');
 		const pantryKeys = [];
 		firebase
 			.database()
@@ -77,20 +69,16 @@ class DashboardScreen extends Component {
 			.once('value')
 			.then((snapshot) => {
 				this.state.pantryDic = snapshot.val();
-				// console.log('snapshot: ' + this.state.pantryDic);
+				// console.log('snapshot: ' + JSON.stringify(this.state.pantryDic));
 				for (const key in this.state.pantryDic) {
 					pantryKeys.push(key);
 				}
 				this.state.pantryKeys = pantryKeys;
+				this.forceUpdate();
 			});
-		// console.log(pantryKeys);
-		// console.log('---------');
-		this.forceUpdate();
 	};
 
 	openPantryPage = (key) => {
-		const id = this.state.pantryDic[key].dbID;
-		console.log('DashboardScreen id: ' + id);
 		this.props.navigation.navigate('PantryDashboardScreen', {
 			pantryKey: key,
 			pantryDic: this.state.pantryDic,
@@ -112,7 +100,8 @@ class DashboardScreen extends Component {
 				{/* <Text style={styles.paragraph}>Pan, zoom, and tap on the map!</Text> */}
 				<View style={styles.map}>
 					{this.state.locationResult === null ? (
-						<Text>Finding your current location...</Text>
+						// <Text>Finding your current location...</Text>
+						<ActivityIndicator size='large' />
 					) : this.state.hasLocationPermissions === false ? (
 						<Text>Location permissions are not granted.</Text>
 					) : this.state.mapRegion === null ? (
@@ -122,7 +111,7 @@ class DashboardScreen extends Component {
 							style={{ alignSelf: 'stretch', height: 200 }}
 							region={this.state.mapRegion}
 							// missing paranthesis and parameter... Is this right?
-							onRegionChange={this.handleMapRegionChange}
+							// onRegionChange={this.handleMapRegionChange}
 						/>
 					)}
 				</View>
@@ -131,10 +120,12 @@ class DashboardScreen extends Component {
 					<ScrollView>
 						{this.state.pantryKeys.map((key) => {
 							return (
-								<Text key={key}>
+								<Text key={key} style={styles.pantryText}>
 									{'\n\n'}
 									<TouchableOpacity onPress={() => this.openPantryPage(key)}>
-										<Text>{this.state.pantryDic[key].pantryName}</Text>
+										<Text style={styles.pantryText}>
+											{this.state.pantryDic[key].pantryName}
+										</Text>
 									</TouchableOpacity>
 								</Text>
 							);
@@ -164,11 +155,6 @@ const styles = StyleSheet.create({
 		// padding: 5,
 	},
 	map: {
-		// position: 'absolute',
-		// top: 0,
-		// left: 0,
-		// right: 0,
-		// bottom: 200,
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: '100%',
@@ -179,12 +165,15 @@ const styles = StyleSheet.create({
 	list: {
 		width: '100%',
 		height: '50%',
-		// backgroundColor: 'yellow',
-		// position: 'absolute',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	pantryText: {
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	button: {
 		position: 'absolute',
 		bottom: 35,
-		// backgroundColor: 'orange',
 	},
 });
