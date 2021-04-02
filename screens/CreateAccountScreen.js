@@ -7,7 +7,16 @@ import env from '../app.json';
 const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 
 class CreateAccountScreen extends Component {
-	createMongoInventory = async (result) => {
+	/*
+		Description: send a POST request to our REST server using the /pantries route. Our server will
+		handle this request so that mongoose stores this entry into the database. We will store the reference ID to
+		this entry in firebase under pantryID. We will also write the rest of user information to firebase.
+
+		Parameters: UserCredential json object (https://firebase.google.com/docs/reference/js/firebase.auth#usercredential)
+		This object is created by firebase's signInWithCredential()
+	*/
+	createMongoPantry = async (result) => {
+		// this is the second argument to fetch() which customizes the HTTP request
 		const pantry = {
 			method: 'POST',
 			headers: {
@@ -23,6 +32,10 @@ class CreateAccountScreen extends Component {
 		};
 
 		fetch(SERVER_URL + 'pantries', pantry)
+			// the .then() chain handles the response from fetch()
+			// fetch() is an inherently asynchronous operation, which returns a Promise. If the promise
+			// is fulfilled, .then() will be carried out, otherwise .catch() will be called.
+			// Read more about Promises here: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 			.then((response) => response.json())
 			.then((responseJson) => {
 				this.state.pantryID = responseJson._id;
@@ -44,10 +57,18 @@ class CreateAccountScreen extends Component {
 			})
 			.catch((error) => {
 				console.error(error);
-				console.error('error in createMongoInventory()');
+				console.error('error in createMongoPantry()');
 			});
 	};
 
+	/*
+		Description: send a POST request to our REST server using the /cart route. Our server will
+		handle this request so that mongoose stores this entry into the database. We will store the reference ID to
+		this entry in firebase under cartID. We will also write the rest of user information to firebase.
+
+		Parameters: UserCredential json object (https://firebase.google.com/docs/reference/js/firebase.auth#usercredential)
+		This object is created by firebase's signInWithCredential()
+	*/
 	createMongoCart = async (result) => {
 		const cart = {
 			method: 'POST',
@@ -87,6 +108,13 @@ class CreateAccountScreen extends Component {
 			});
 	};
 
+	/*
+		Description: Create new user and sign them in. The observer will notice a change in sign-in state
+		and LoadingScreen will handle which screen to navigate to.
+
+		Note: onAuthStateChanged() on LoadingScreen "Adds an observer for changes to the user's sign-in state" 
+		(read more at https://firebase.google.com/docs/reference/js/firebase.auth.Auth#onauthstatechanged)
+	*/
 	writeUserData = () => {
 		firebase
 			.auth()
@@ -105,7 +133,7 @@ class CreateAccountScreen extends Component {
 					.then((result) => {
 						this.state.uid = result.user.uid;
 						if (this.state.userType == 'pantry') {
-							this.createMongoInventory(result);
+							this.createMongoPantry(result);
 						} else {
 							this.createMongoCart(result);
 						}
@@ -119,7 +147,7 @@ class CreateAccountScreen extends Component {
 			});
 	};
 
-	renderUserInfoPrompt = () => {
+	renderConsumerInfoPrompt = () => {
 		// userType will be passed during navigation (consumer is just default)
 		const userType = this.props.navigation.getParam('userType', 'consumer');
 		return (
@@ -181,6 +209,7 @@ class CreateAccountScreen extends Component {
 	};
 
 	state = {
+		// userType will either be "pantry" or "consumer"
 		userType: this.props.navigation.getParam('userType', 'consumer'),
 		firstname: '',
 		lastname: '',
@@ -206,7 +235,7 @@ class CreateAccountScreen extends Component {
 						onPress={() => this.props.navigation.navigate('LoginScreen')}
 					/>
 				</View>
-				{this.renderUserInfoPrompt()}
+				{this.renderConsumerInfoPrompt()}
 				{this.renderPantryInfoPrompt()}
 				<View>
 					<Text>{this.state.error}</Text>

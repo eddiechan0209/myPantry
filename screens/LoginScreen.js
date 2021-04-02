@@ -16,6 +16,9 @@ import { AntDesign } from '@expo/vector-icons';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 class LoginScreen extends Component {
+	/*
+		This needs to be updated. Ignore for now
+	*/
 	googleSignIn = (googleUser) => {
 		// We need to register an Observer on Firebase Auth to make sure auth is initialized.
 		var unsubscribe = firebase.auth().onAuthStateChanged(
@@ -66,8 +69,10 @@ class LoginScreen extends Component {
 		);
 	};
 
+	/*
+		Description: sign in user with email (and not Google)
+	*/
 	emailSignIn = () => {
-		// Proper way to build credentials?
 		var credential = firebase.auth.EmailAuthProvider.credential(
 			this.state.emailaddress,
 			this.state.password
@@ -130,6 +135,10 @@ class LoginScreen extends Component {
 		return false;
 	};
 
+	/*
+		Description: "Prompts the user to log into Google and grants your app permission to access some 
+		of their Google data, as specified by the scopes." (https://docs.expo.io/versions/latest/sdk/google/#loginasync)
+	*/
 	signInWithGoogleAsync = async () => {
 		try {
 			const result = await Google.logInAsync({
@@ -151,6 +160,14 @@ class LoginScreen extends Component {
 		}
 	};
 
+	/*
+		Description: there are 3 modals (modals are like popups):
+			Modal 1: user clicked "Create Account" and is prompted to identify the type of user they are "pantry" or consumer
+			Modal 2: user clicked "Sign In" and is prompted to identify the method to sign in (email or with Google)
+			Modal 3: user wants to sign in with email, and is prompted text boxes for email and password
+
+		I dont really like these modals and know there's better components we can use.
+	*/
 	toggleModalVisibility = (num) => {
 		if (num == 1) {
 			this.setState((prevState) => ({
@@ -165,12 +182,6 @@ class LoginScreen extends Component {
 				modal3Visible: !prevState.modal3Visible,
 				modal2Visible: false,
 			}));
-		}
-	};
-
-	showError = () => {
-		if (this.state.error != '') {
-			return this.state.error;
 		}
 	};
 

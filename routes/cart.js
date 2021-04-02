@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Cart = require('../models/cart');
 
-// Get all
+// Get all carts in the database
 router.get('/', async (req, res) => {
 	console.log('in get all');
 	try {
@@ -13,13 +13,13 @@ router.get('/', async (req, res) => {
 	}
 });
 
-// Get one
+// Get one cart
 router.get('/:id', getCart, (req, res) => {
 	console.log('in get one');
 	res.send(res.cart);
 });
 
-// Create one
+// Create a new cart
 router.post('/', async (req, res) => {
 	console.log('in create one');
 	console.log(JSON.stringify(req.body));
@@ -65,7 +65,7 @@ function updateOneItem(cart, item) {
 	}
 }
 
-// Update
+// Update the cart inventory or other attributes
 router.patch('/:id', getCart, async (req, res) => {
 	console.log('in main update');
 	// console.log(typeof res);
@@ -111,7 +111,7 @@ router.patch('/:id/clear', getCart, async (req, res) => {
 	}
 });
 
-// Delete One
+// Delete a cart
 router.delete('/:id', getCart, async (req, res) => {
 	console.log('in delete one');
 	try {
