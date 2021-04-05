@@ -6,10 +6,13 @@ class PantryOrderScreen extends Component {
 	_isMounted = false;
 	state = { pantryInfo: {}, pantryDic: null, pantryKey: null };
 
+	// Setting state variables to information that was given in the last screen 
 	componentDidMount = () => {
 		this._isMounted = true;
 		if (this._isMounted) {
 			this.setState({
+				// this.props.navigation.getParam gives you any variables that were 
+				// 	given after you navigated from the last screen
 				pantryInfo: this.props.navigation.getParam('pantryInfo', null),
 				pantryDic: this.props.navigation.getParam('pantryDic', null),
 				pantryKey: this.props.navigation.getParam('pantryKey', null),
@@ -17,6 +20,8 @@ class PantryOrderScreen extends Component {
 		}
 	};
 
+	// Setting isMounted variable to false after we leave the screen
+	// ismMounted used to save the state of the screen
 	componentWillUnmount() {
 		this._isMounted = false;
 	}
