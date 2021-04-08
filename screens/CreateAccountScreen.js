@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
-import env from '../app.json';
+import env from '../ip.json';
 
 const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 

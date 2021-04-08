@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase';
-import env from '../app.json';
+import env from '../ip.json';
 
 const SERVER_URL = 'http:/' + env.myIP + ':3000/';
 
@@ -40,8 +40,8 @@ class PantryDashboardScreen extends Component {
 
 	componentDidMount = () => {
 		// Getting dictionary and key properties from what was given in last page
-		// Dic is a dictionary with keys and pantry objects 
-		// Using key to get the pantry that we are currently looking at 
+		// Dic is a dictionary with keys and pantry objects
+		// Using key to get the pantry that we are currently looking at
 		const dic = this.props.navigation.getParam('pantryDic', null);
 		const key = this.props.navigation.getParam('pantryKey', null);
 
@@ -57,12 +57,11 @@ class PantryDashboardScreen extends Component {
 				this.getPantryInventory();
 			}
 		);
-		
 
 		const currUser = firebase.auth().currentUser;
-		// Accessing firebase database using uid (user id) to get id of the cart and 
-		// if a cart is found then setting the state property of 
-		// 	cartID to the value we found in the firebase directory 
+		// Accessing firebase database using uid (user id) to get id of the cart and
+		// if a cart is found then setting the state property of
+		// 	cartID to the value we found in the firebase directory
 		firebase
 			.database()
 			.ref('/consumer')
@@ -86,7 +85,7 @@ class PantryDashboardScreen extends Component {
 	// ----------------------------- PANTRY FUNCTIONS -----------------------------
 	// updates state's pantryInfo (and therefore display)
 	getPantryInventory = async () => {
-		// Sending request by building the url 
+		// Sending request by building the url
 		// The request is handled in pantry route file
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID)
 			.then((response) => {
@@ -115,7 +114,7 @@ class PantryDashboardScreen extends Component {
 
 	// update's pantry's inventory
 	updateInventory = async () => {
-		// Creating an an entry that will have the new item and item quantity 
+		// Creating an an entry that will have the new item and item quantity
 		const patchEntry = {
 			method: 'PATCH',
 			headers: {
@@ -132,8 +131,8 @@ class PantryDashboardScreen extends Component {
 				],
 			}),
 		};
-		
-		// Using the entry that we just created to send a request 
+
+		// Using the entry that we just created to send a request
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID, patchEntry)
 			.then((response) => {
 				if (response.status >= 200 && response.status <= 299) {
@@ -143,10 +142,10 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				// Running get pantry inventory so that the pantry is updated with 
-				// the new item in the request that sent 
+				// Running get pantry inventory so that the pantry is updated with
+				// the new item in the request that sent
 				this.getPantryInventory();
-				// Setting the item properties in state to null as the item has been 
+				// Setting the item properties in state to null as the item has been
 				// updated so we want the values to reset
 				this.setState({
 					itemID: null,
@@ -162,12 +161,10 @@ class PantryDashboardScreen extends Component {
 	};
 	// ----------------------------- END OF PANTRY FUNCTIONS -----------------------------
 
-
-
 	// ----------------------------- CONSUMER FUNCTIONS -----------------------------
 	// update's state's cartInfo (and therefore display)
 	getCart = async () => {
-		// Making a request using the state cartID that will get the cart info as a response 
+		// Making a request using the state cartID that will get the cart info as a response
 		return fetch(SERVER_URL + 'cart/' + this.state.cartID)
 			.then((response) => {
 				// Returning the response if no errors or else printing error message
@@ -178,7 +175,7 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				// Setting the state to the response 
+				// Setting the state to the response
 				this.setState(
 					{
 						cartInfo: responseJson,
@@ -194,7 +191,7 @@ class PantryDashboardScreen extends Component {
 
 	// update's consumer's cart
 	updateCart = async () => {
-		// Setting a default name variable 
+		// Setting a default name variable
 		let name = 'Unknown';
 
 		// Finding the name of the item that is being added to the cart
@@ -205,7 +202,7 @@ class PantryDashboardScreen extends Component {
 			}
 		});
 
-		// Creating a patch entry that will have the new inventory that the 
+		// Creating a patch entry that will have the new inventory that the
 		// 	cart should have
 		const patchEntry = {
 			method: 'PATCH',
@@ -223,12 +220,12 @@ class PantryDashboardScreen extends Component {
 				],
 			}),
 		};
-		
+
 		// Making a request to the server using the new patch entry that we just created
 		return fetch(SERVER_URL + 'cart/' + this.state.cartID, patchEntry)
 			.then((response) => {
 				if (response.status >= 200 && response.status <= 299) {
-					// Returning response as json object if no errors 
+					// Returning response as json object if no errors
 					return response.json();
 				} else {
 					// Printing error message if there was an error
@@ -236,14 +233,13 @@ class PantryDashboardScreen extends Component {
 				}
 			})
 			.then((responseJson) => {
-				
-				// Updating the pantry inventory and the cart to have the 
-				// 	new information after request was made and changes were made 
-				// 	to server 
+				// Updating the pantry inventory and the cart to have the
+				// 	new information after request was made and changes were made
+				// 	to server
 				this.getPantryInventory();
 				this.getCart();
-				
-				// Resetting the state item properties 
+
+				// Resetting the state item properties
 				this.setState({
 					itemID: null,
 					itemName: null,
@@ -262,7 +258,7 @@ class PantryDashboardScreen extends Component {
 		// Creating temporary empty arrays to store inventory and order info
 		const inventoryUpdate = [];
 		const orderUpdate = [];
-		
+
 		// Looping through the current cart inventory item by item
 		this.state.cartInfo.inventory.forEach((item) => {
 			let quantity = 0;
@@ -271,10 +267,10 @@ class PantryDashboardScreen extends Component {
 			// We can improve this later by adjusting our model
 
 			// Updating the temporary arrays orderUpdate and inventoryUpdate to have
-			// 	the new items with the correct quantities 
+			// 	the new items with the correct quantities
 			this.state.pantryInfo.inventory.forEach((item2) => {
 				if (item.itemID == item2.itemID) {
-					// When item is found in pantry inventory we need to remove 
+					// When item is found in pantry inventory we need to remove
 					// 	the quantity that was in the order
 					quantity = item2.quantity - item.quantity;
 					inventoryUpdate.push({
@@ -294,8 +290,8 @@ class PantryDashboardScreen extends Component {
 
 		// console.log('inventoryUpdate: ' + JSON.stringify(inventoryUpdate));
 
-		// Creating a patch entry that has the information for the new order and 
-		// 	the inventory 
+		// Creating a patch entry that has the information for the new order and
+		// 	the inventory
 		const patchEntry = {
 			method: 'PATCH',
 			headers: {
@@ -311,7 +307,7 @@ class PantryDashboardScreen extends Component {
 			}),
 		};
 
-		// Sending the request with the new patchEntry we created 
+		// Sending the request with the new patchEntry we created
 		return fetch(SERVER_URL + 'pantries/' + this.state.pantryID, patchEntry)
 			.then((response) => {
 				if (response.status >= 200 && response.status <= 299) {
@@ -325,7 +321,7 @@ class PantryDashboardScreen extends Component {
 				this.getPantryInventory();
 				this.getCart();
 
-				// Clearing what was currently in the cart 
+				// Clearing what was currently in the cart
 				this.clearCart();
 
 				// Resetting state item properties

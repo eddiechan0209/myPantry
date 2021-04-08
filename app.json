@@ -28,6 +28,5 @@
 		},
 		"sdkVersion": "40.0.0"
 	},
-	"name": "app",
-	"myIP": "192.168.1.70"
+	"name": "app"
 }
