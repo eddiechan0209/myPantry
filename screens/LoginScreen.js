@@ -13,6 +13,7 @@ import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
 import logo from '../images/MyPantryLogo.png';
 import { AntDesign } from '@expo/vector-icons';
+import { Container, Content, Tabs } from 'native-base';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 class LoginScreen extends Component {
