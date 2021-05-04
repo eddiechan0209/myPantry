@@ -9,7 +9,6 @@ npm-debug.*
 *.orig.*
 web-build/
 config.js
-package-lock.json
 .env
 ip.json
 
