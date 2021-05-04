@@ -19,6 +19,7 @@
 		"express": "^4.17.1",
 		"firebase": "7.9.0",
 		"mongoose": "^5.11.13",
+		"native-base": "^2.15.2",
 		"react": "16.13.1",
 		"react-bootstrap-validation": "^0.1.11",
 		"react-dom": "16.13.1",

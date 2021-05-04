@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableWithoutFeedback,
+	Image,
+} from 'react-native';
+import logo from './images/logo.png';
 
 const Header = (props) => {
 	const {
@@ -13,9 +20,10 @@ const Header = (props) => {
 
 	return (
 		<View style={styles.containerHeader}>
-			<View style={styles.textContainer}>
-				<Text style={styles.logo}>MyPantry</Text>
+			<View style={styles.logoWrapper}>
+				<Image style={styles.logo} source={logo} />
 			</View>
+
 			<View style={styles.tabContainer}>
 				{navigationState.routes.map((route, index) => {
 					const isRouteActive = index === activeTabIndex;
@@ -26,17 +34,25 @@ const Header = (props) => {
 							onPress={() => navigation.navigate(route.routeName)}
 							key={route.routeName}
 						>
-							<View>
+							<View style={styles.centerLines}>
 								<Text
 									style={{
 										fontSize: 17,
 										textTransform: 'uppercase',
-										color: `${tintColor}`,
 										fontWeight: `${isRouteActive ? 'bold' : 'normal'}`,
 									}}
 								>
 									{route.routeName}
 								</Text>
+								<View
+									style={{
+										justifyContent: 'center',
+										flex: 1,
+										width: '200%',
+										borderRadius: 50,
+										backgroundColor: `${tintColor}`,
+									}}
+								></View>
 							</View>
 						</TouchableWithoutFeedback>
 					);
@@ -53,14 +69,18 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: '#f2f2f2',
 		height: '33%',
-		borderRadius: 15,
+		borderRadius: 30,
 	},
-	textContainer: {
-		marginVertical: 30,
-		paddingTop: 30,
-	},
+	// textContainer: {
+	// 	marginVertical: 30,
+	// 	paddingTop: 30,
+	// },
 	logo: {
-		color: 'green',
+		resizeMode: 'contain',
+		height: '75%',
+	},
+	logoWrapper: {
+		paddingTop: 50,
 	},
 	tabContainer: {
 		width: '100%',
@@ -71,5 +91,10 @@ const styles = StyleSheet.create({
 		height: 40,
 		paddingBottom: 15,
 	},
+	centerLines: {
+		justifyContent: 'space-evenly',
+		alignItems: 'center',
+	},
+	rectangle: {},
 });
 export default Header;

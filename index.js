@@ -17,7 +17,7 @@ const TabNavigator = createMaterialTopTabNavigator(
 		tabBarComponent: Header,
 		tabBarOptions: {
 			activeTintColor: 'black',
-			inactiveTintColor: 'black',
+			inactiveTintColor: '#f2f2f2',
 		},
 		initialRouteName: 'Login',
 	}

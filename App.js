@@ -17,20 +17,20 @@ if (!firebase.apps.length) {
 	firebase.app(); // if already initialized, use that one
 }
 
-export default function App() {
-	return <AppNavigator />;
-}
+// export default function App() {
+// 	return <AppNavigator />;
+// }
 
-const AppSwitchNavigator = createSwitchNavigator({
-	LoadingScreen: LoadingScreen,
-	LoginScreen: LoginScreen,
-	DashboardScreen: DashboardScreen,
-	CreateAccountScreen: CreateAccountScreen,
-	PantryDashboardScreen: PantryDashboardScreen,
-	PantryOrderScreen: PantryOrderScreen,
-});
+// const AppSwitchNavigator = createSwitchNavigator({
+// 	LoadingScreen: LoadingScreen,
+// 	LoginScreen: LoginScreen,
+// 	DashboardScreen: DashboardScreen,
+// 	CreateAccountScreen: CreateAccountScreen,
+// 	PantryDashboardScreen: PantryDashboardScreen,
+// 	PantryOrderScreen: PantryOrderScreen,
+// });
 
-const AppNavigator = createAppContainer(AppSwitchNavigator);
+// const AppNavigator = createAppContainer(AppSwitchNavigator);
 
 export default function App() {
 	return (
@@ -40,25 +40,25 @@ export default function App() {
 	);
 }
 
-const DrawerNav = createDrawerNavigator(
-	{
-		Home: AppSwitchNavigator,
-	},
-	{
-		contentComponent: Navigation,
-	}
-);
+// const DrawerNav = createDrawerNavigator(
+// 	{
+// 		Home: AppSwitchNavigator,
+// 	},
+// 	{
+// 		contentComponent: Navigation,
+// 	}
+// );
 
-const AppContainer = createAppContainer(DrawerNav);
-export default class App extends Component {
-	render() {
-		return (
-			<View style={styles.container}>
-				<AppContainer />
-			</View>
-		);
-	}
-}
+// const AppContainer = createAppContainer(DrawerNav);
+// export default class App extends Component {
+// 	render() {
+// 		return (
+// 			<View style={styles.container}>
+// 				<AppContainer />
+// 			</View>
+// 		);
+// 	}
+// }
 
 const styles = StyleSheet.create({
 	container: {

@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
-import logo from '../images/MyPantryLogo.png';
 import { AntDesign } from '@expo/vector-icons';
 
 class Login extends React.Component {
