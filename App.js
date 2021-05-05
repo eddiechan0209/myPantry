@@ -1,68 +1,55 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Navigation from './index';
+import { NavigationContainer } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
-import { createSwitchNavigator, createAppContainer } from 'react-navigation';
-import LoginScreen from './screens/LoginScreen';
+import Header from './Header';
+import Login from './screens/Login';
+import SignUp from './screens/SignUp';
 import DashboardScreen from './screens/DashboardScreen';
-import LoadingScreen from './screens/LoadingScreen';
-import CreateAccountScreen from './screens/CreateAccountScreen';
-import PantryDashboardScreen from './screens/PantryDashboardScreen';
-import PantryOrderScreen from './screens/PantryOrderScreen';
-import firebase from 'firebase';
-import { firebaseConfig } from './config';
-if (!firebase.apps.length) {
-	firebase.initializeApp(firebaseConfig);
-} else {
-	firebase.app(); // if already initialized, use that one
+
+const Tab = createMaterialTopTabNavigator();
+
+function MyTabs() {
+	return (
+		<Tab.Navigator
+			initialRouteName='Login'
+			tabBar={(props) => <Header {...props} />}
+			// activeTintColor='#577a3b'
+			// inactiveTintColor='#f2f2f2'
+		>
+			<Tab.Screen name='Login' component={Login} />
+			<Tab.Screen name='Sign-Up' component={SignUp} />
+		</Tab.Navigator>
+	);
 }
 
-// export default function App() {
-// 	return <AppNavigator />;
-// }
+const BottomTabs = createMaterialBottomTabNavigator();
 
-// const AppSwitchNavigator = createSwitchNavigator({
-// 	LoadingScreen: LoadingScreen,
-// 	LoginScreen: LoginScreen,
-// 	DashboardScreen: DashboardScreen,
-// 	CreateAccountScreen: CreateAccountScreen,
-// 	PantryDashboardScreen: PantryDashboardScreen,
-// 	PantryOrderScreen: PantryOrderScreen,
-// });
-
-// const AppNavigator = createAppContainer(AppSwitchNavigator);
+function MyBottomTabs() {
+	return (
+		<BottomTabs.Navigator>
+			<BottomTabs.Screen name='Login' component={MyTabs} />
+			<BottomTabs.Screen name='Home' component={DashboardScreen} />
+		</BottomTabs.Navigator>
+	);
+}
 
 export default function App() {
 	return (
 		<View style={styles.container}>
-			<Navigation />
+			<NavigationContainer>
+				<MyBottomTabs />
+			</NavigationContainer>
 		</View>
 	);
 }
 
-// const DrawerNav = createDrawerNavigator(
-// 	{
-// 		Home: AppSwitchNavigator,
-// 	},
-// 	{
-// 		contentComponent: Navigation,
-// 	}
-// );
-
-// const AppContainer = createAppContainer(DrawerNav);
-// export default class App extends Component {
-// 	render() {
-// 		return (
-// 			<View style={styles.container}>
-// 				<AppContainer />
-// 			</View>
-// 		);
-// 	}
-// }
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		// backgroundColor: '#e0e0e0',
 		backgroundColor: '#e0e0e0',
 		flexDirection: 'column',
 	},

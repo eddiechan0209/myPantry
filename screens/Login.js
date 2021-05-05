@@ -40,13 +40,7 @@ class Login extends React.Component {
 					value={this.state.emailaddress}
 					onChangeText={(emailaddress) => this.setState({ emailaddress })}
 					placeholder={'Enter email address'}
-					style={{
-						justifyContent: 'center',
-						alignItems: 'center',
-						backgroundColor: 'white',
-						alignSelf: 'stretch',
-						height: 30,
-					}}
+					style={styles.input}
 				/>
 				<View style={{ height: 20 }} />
 				<Text>Password</Text>
@@ -56,13 +50,7 @@ class Login extends React.Component {
 					onChangeText={(password) => this.setState({ password })}
 					placeholder={'Enter password'}
 					secureTextEntry={true}
-					style={{
-						justifyContent: 'center',
-						alignItems: 'center',
-						backgroundColor: 'white',
-						alignSelf: 'stretch',
-						height: 30,
-					}}
+					style={styles.input}
 				/>
 				<Button
 					title={'Login'}
@@ -90,5 +78,6 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 		alignSelf: 'stretch',
 		height: 30,
+		borderRadius: 5,
 	},
 });

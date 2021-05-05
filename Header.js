@@ -9,14 +9,8 @@ import {
 } from 'react-native';
 import logo from './images/logo.png';
 
-const Header = (props) => {
-	const {
-		navigationState,
-		navigation,
-		activeTintColor,
-		inactiveTintColor,
-	} = props;
-	const activeTabIndex = navigation.state.index;
+const Header = ({ state, navigation }) => {
+	const activeTabIndex = state.index;
 
 	return (
 		<View style={styles.containerHeader}>
@@ -25,14 +19,13 @@ const Header = (props) => {
 			</View>
 
 			<View style={styles.tabContainer}>
-				{navigationState.routes.map((route, index) => {
+				{state.routes.map((route, index) => {
 					const isRouteActive = index === activeTabIndex;
-					const tintColor = isRouteActive ? activeTintColor : inactiveTintColor;
 
 					return (
 						<TouchableWithoutFeedback
-							onPress={() => navigation.navigate(route.routeName)}
-							key={route.routeName}
+							onPress={() => navigation.navigate(route.name)}
+							key={route.name}
 						>
 							<View style={styles.centerLines}>
 								<Text
@@ -42,15 +35,15 @@ const Header = (props) => {
 										fontWeight: `${isRouteActive ? 'bold' : 'normal'}`,
 									}}
 								>
-									{route.routeName}
+									{route.name}
 								</Text>
 								<View
 									style={{
 										justifyContent: 'center',
 										flex: 1,
-										width: '200%',
+										width: '150%',
 										borderRadius: 50,
-										backgroundColor: `${tintColor}`,
+										backgroundColor: `${isRouteActive ? '#577a3b' : '#f2f2f2'}`,
 									}}
 								></View>
 							</View>
