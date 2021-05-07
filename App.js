@@ -9,6 +9,14 @@ import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import DashboardScreen from './screens/DashboardScreen';
 
+import firebase from 'firebase';
+import { firebaseConfig } from './config';
+if (!firebase.apps.length) {
+	firebase.initializeApp(firebaseConfig);
+} else {
+	firebase.app(); // if already initialized, use that one
+}
+
 /*
 	Helpful Links for Navigation:
 	https://reactnavigation.org/docs/tab-based-navigation/
@@ -66,7 +74,7 @@ export default function App() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		// backgroundColor: 'black',
+		// backgroundColor: '#e0e0e0',
 		flexDirection: 'column',
 	},
 	childContainer: {

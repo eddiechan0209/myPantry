@@ -43,7 +43,7 @@ const Header = ({ state, navigation }) => {
 										flex: 1,
 										width: '150%',
 										borderRadius: 50,
-										backgroundColor: `${isRouteActive ? '#577a3b' : '#f2f2f2'}`,
+										backgroundColor: `${isRouteActive ? '#577a3b' : 'white'}`,
 									}}
 								></View>
 							</View>
@@ -60,7 +60,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		backgroundColor: '#f2f2f2',
+		//backgroundColor: '#e0e0e0',
+		backgroundColor: 'white',
 		height: '33%',
 		borderRadius: 30,
 	},

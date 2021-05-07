@@ -8,25 +8,6 @@ import Header from './Header';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 
-// const LoginTabNavigator = createMaterialTopTabNavigator(
-// 	{
-// 		Login: {
-// 			screen: Login,
-// 		},
-// 		SignUp: {
-// 			screen: SignUp,
-// 		},
-// 	},
-// 	{
-// 		tabBarComponent: Header,
-// 		tabBarOptions: {
-// 			activeTintColor: '#577a3b',
-// 			inactiveTintColor: '#f2f2f2',
-// 		},
-// 		initialRouteName: 'Login',
-// 	}
-// );
-
 const Tab = createMaterialTopTabNavigator();
 
 function MyTabs() {
